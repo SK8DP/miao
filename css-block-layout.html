@@ -23,13 +23,39 @@
       margin: 16px auto;
     }
 
-    
+    .cards{
+      margin:auto;
+      padding:0;
+      list-style: none;
+    }
+    .cards li{
+      width: 180px;
+      height: 40px;
+      border:3px solid;
+      box-sizing:border-box;
+      margin-bottom: 15px;
+      text-align:center;
+      line-height:34px;
+      background-color:pink;
+    }
+    .cards li:hover{
+      background-color: red;
+    }
+    .cards li:nth-child(n+5){
+      margin-left: 210px;
+    }
+    .cards li:nth-child(n+9){
+      margin-left: 420px;
+    }
+    .cards li:nth-child(4n+5){
+      margin-top: -220px;
+    }
     .link{
       width: 600px;
       border: 1px dotted transparent;
       margin: 0 auto;
     }
-    .link:nth-child(2n){
+    .first,.second {
        border-bottom-color: black;
        border-top-color: black;
     }
@@ -37,17 +63,37 @@
       background-color:pink;
       text-align: center;
     }
+    main{
+        width: 600px;
+        margin: auto;
+    }
     
   </style>
 </head>
 <body>
   <nav><p class="topic">hello world 请调整浏览器窗口大小查看效果</p></nav>
   <p class="main">页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px 页面主体 宽度600px</p>
-    <p class="link">link</p>
-    <p class="link">link</p>
-    <p class="link">link</p>
-    <p class="link">link</p>
-    <p class="link">link</p>
-    <p class="bottom">©版权所有<br>本页所有布局均使用块元素</p>
+  <main>
+    <ul class="cards">
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+      <li>产品</li>
+    </ul>
+<p class="link">link</p>
+<p class="link first">link</p>
+<p class="link">link</p>
+<p class="link second">link</p>
+<p class="link">link</p>
+<p class="bottom">©版权所有<br>本页所有布局均使用块元素</p>
+  </main>
 
 </body></html>
