@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  * {
+    xbackground-color: rgba(0, 0, 0, 0.08);
+    xbox-shadow: inset 0 0 1px red;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+    min-width: 1000px;
+  }
+
+  .all {
+    display: flex;
+    height: 100%;
+  }
+
+  aside {
+    width: 200px;
+    box-sizing: border-box;
+    border-right: 2px solid black;
+    background-color: #eaeef3;
+  }
+
+  aside h2 {
+    margin: 0 0.5em;
+    text-align: right;
+    font-size: 24px;
+    line-height: 3;
+  }
+
+  aside:nth-last-child(1) {
+    border: none;
+  }
+
+  .list h1 {
+    font-size: 24px;
+    line-height: 72px;
+    margin: 0 0.5em;
+    text-align: right;
+  }
+
+  .list div {
+    box-sizing: border-box;
+    height: 27px;
+    margin: 4px;
+    text-align: center;
+  }
+
+  .list input {
+    height: 25px;
+    width: 150px;
+    border-radius: 15px 0 0 15px;
+  }
+
+  .list button {
+    margin: 0;
+    height: 25px;
+    width: 35px;
+    border-radius: 0 15px 15px 0;
+    vertical-align: top;
+  }
+
+  .list ul {
+    margin: 0;
+    margin-top: 3px;
+    height: calc(100% - 110px);
+    overflow: auto;
+    list-style: none;
+    padding-left: 0;
+    font-family: serif;
+  }
+
+  .list ul a {
+    box-sizing: border-box;
+    display: block;
+    padding-left: 1em;
+    font-size: 20px;
+    border: 1px solid rgb(0, 0, 0, 0);
+    color: #426dc9;
+  }
+
+  .list ul a:link {
+    text-decoration: none;
+    color: black;
+  }
+
+  .list ul li a:hover {
+    background-color: #bbcee8;
+    border-color: #8faad9;
+    color: black;
+  }
+
+  .wordList ul a:visited {
+    color: #426dc9;
+  }
+
+  main {
+    flex: 1;
+    box-sizing: border-box;
+    border-right: 2px solid black;
+    min-width: 300px;
+  }
+
+  main .word h2 {
+    margin: 0 1em;
+    font-size: 24px;
+  }
+
+
+
+  main .explain {
+    border-top: 1px solid #000;
+    box-sizing: border-box;
+    padding: 1em 1em 1em 2em;
+    height: calc(100% - 72px);
+    overflow: auto;
+  }
+
+  main p {
+    font-size: 23px;
+    text-decoration: line-through;
+    margin-bottom: 10px
+  }
+
+  main ol li {
+    margin-bottom: 10px;
+  }
+
+
+  .word {
+    height: 72px;
+    box-sizing: border-box;
+    border-bottom: 2px solid black;
+  }
+
+  .explain {
+    height: calc(100% - 72px);
+    box-sizing: border-box;
+  }
+</style>
+
+<body>
+  <div class="all">
+    <aside class="list">
+      <h1>OALD Se7en</h1>
+      <div>
+        <input type="search" name="word" id="word" value="这是怎么回事？">
+        <button></button>
+      </div>
+      <ul>
+        <li><a href="">word1</a></li>
+        <li><a href="">word2</a></li>
+        <li><a href="">word3</a></li>
+        <li><a href="">word4</a></li>
+        <li><a href="">word5</a></li>
+        <li><a href="">word6</a></li>
+        <li><a href="">word7</a></li>
+        <li><a href="">word8</a></li>
+        <li><a href="">word9</a></li>
+        <li><a href="">word10</a></li>
+        <li><a href="">word11</a></li>
+        <li><a href="">word12</a></li>
+        <li><a href="">word13</a></li>
+        <li><a href="">word14</a></li>
+        <li><a href="">word15</a></li>
+        <li><a href="">word16</a></li>
+        <li><a href="">word17</a></li>
+        <li><a href="">word18</a></li>
+        <li><a href="">word19</a></li>
+        <li><a href="">word20</a></li>
+        <li><a href="">word21</a></li>
+        <li><a href="">word22</a></li>
+        <li><a href="">word23</a></li>
+        <li><a href="">word24</a></li>
+        <li><a href="">word25</a></li>
+        <li><a href="">word26</a></li>
+        <li><a href="">word27</a></li>
+        <li><a href="">word28</a></li>
+        <li><a href="">word29</a></li>
+        <li><a href="">word30</a></li>
+        <li><a href="">word31</a></li>
+        <li><a href="">word32</a></li>
+        <li><a href="">word33</a></li>
+        <li><a href="">word34</a></li>
+        <li><a href="">word35</a></li>
+        <li><a href="">word36</a></li>
+        <li><a href="">word37</a></li>
+        <li><a href="">word38</a></li>
+        <li><a href="">word39</a></li>
+        <li><a href="">word40</a></li>
+        <li><a href="">word41</a></li>
+        <li><a href="">word42</a></li>
+        <li><a href="">word43</a></li>
+        <li><a href="">word44</a></li>
+        <li><a href="">word45</a></li>
+        <li><a href="">word46</a></li>
+        <li><a href="">word47</a></li>
+        <li><a href="">word48</a></li>
+        <li><a href="">word49</a></li>
+        <li><a href="">word50</a></li>
+        <li><a href="">word51</a></li>
+        <li><a href="">word52</a></li>
+        <li><a href="">word53</a></li>
+        <li><a href="">word54</a></li>
+        <li><a href="">word55</a></li>
+        <li><a href="">word56</a></li>
+        <li><a href="">word57</a></li>
+        <li><a href="">word58</a></li>
+        <li><a href="">word59</a></li>
+        <li><a href="">word60</a></li>
+        <li><a href="">word61</a></li>
+        <li><a href="">word62</a></li>
+        <li><a href="">word63</a></li>
+        <li><a href="">word64</a></li>
+        <li><a href="">word65</a></li>
+        <li><a href="">word66</a></li>
+        <li><a href="">word67</a></li>
+        <li><a href="">word68</a></li>
+        <li><a href="">word69</a></li>
+        <li><a href="">word70</a></li>
+        <li><a href="">word71</a></li>
+        <li><a href="">word72</a></li>
+        <li><a href="">word73</a></li>
+        <li><a href="">word74</a></li>
+        <li><a href="">word75</a></li>
+        <li><a href="">word76</a></li>
+        <li><a href="">word77</a></li>
+        <li><a href="">word78</a></li>
+        <li><a href="">word79</a></li>
+        <li><a href="">word80</a></li>
+        <li><a href="">word81</a></li>
+        <li><a href="">word82</a></li>
+        <li><a href="">word83</a></li>
+        <li><a href="">word84</a></li>
+        <li><a href="">word85</a></li>
+        <li><a href="">word86</a></li>
+        <li><a href="">word87</a></li>
+        <li><a href="">word88</a></li>
+        <li><a href="">word89</a></li>
+        <li><a href="">word90</a></li>
+        <li><a href="">word91</a></li>
+        <li><a href="">word92</a></li>
+        <li><a href="">word93</a></li>
+        <li><a href="">word94</a></li>
+        <li><a href="">word95</a></li>
+        <li><a href="">word96</a></li>
+        <li><a href="">word97</a></li>
+        <li><a href="">word98</a></li>
+        <li><a href="">word99</a></li>
+        <li><a href="">word100</a></li>
+      </ul>
+    </aside>
+    <main>
+      <section class="word">
+        <h2>fantasy</h2>
+      </section>
+      <section class="explain">
+        <p><em>fucking lorem</em></p>
+        <ol>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Qui quo autem omnis, quibusdam incidunt vero
+            harum
+            fuga distinctio, mollitia ab.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates, illum consequatur asperiores. Itaque
+            porro reprehenderit explicabo quidem excepturi hic reiciendis.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Qui quo autem omnis, quibusdam incidunt vero
+            harum
+            fuga distinctio, mollitia ab.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates, illum consequatur asperiores. Itaque
+            porro reprehenderit explicabo quidem excepturi hic reiciendis.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Qui quo autem omnis, quibusdam incidunt vero
+            harum
+            fuga distinctio, mollitia ab.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates, illum consequatur asperiores. Itaque
+            porro reprehenderit explicabo quidem excepturi hic reiciendis.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Qui quo autem omnis, quibusdam incidunt vero
+            harum
+            fuga distinctio, mollitia ab.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates, illum consequatur asperiores. Itaque
+            porro reprehenderit explicabo quidem excepturi hic reiciendis.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Qui quo autem omnis, quibusdam incidunt vero
+            harum
+            fuga distinctio, mollitia ab.</li>
+          <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates, illum consequatur asperiores. Itaque
+            porro reprehenderit explicabo quidem excepturi hic reiciendis.</li>
+
+        </ol>
+      </section>
+    </main>
+    <aside class="vocabulary">
+      <h2>vocabulary</h2>
+    </aside>
+    <aside class="history">
+      <h2>history</h2>
+    </aside>
+  </div>
+</body>
+
+</html>
