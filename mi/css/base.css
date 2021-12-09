@@ -24,6 +24,7 @@ body {
     "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif;
   color: #333;
   text-align:center;
+  min-width: 1226px;
 }
 
 /* 去除列表默认样式 */
