@@ -4,3 +4,88 @@
   console.log(a+b);
 
 </script>
+
+<script id="ch0103/02">
+  var a = prompt('请输入A')-0;
+  var b = prompt('请输入B') - 0;
+  var c = prompt('请输入C') - 0;
+  if(a>10000||a<-10000|| b > 10000 || b < -10000||c > 10000 || c < -10000){
+    alert('范围溢出');
+  }else{
+    console.log((a + b) * c);
+    }
+</script>
+
+
+<script id = "ch0103/03">
+    var a = prompt('请输入A') - 0;
+    var b = prompt('请输入B') - 0;
+    var c = prompt('请输入C') - 0;
+    if (a > 10000 || a < -10000 || b > 10000 || b < -10000 || c > 10000 || c < -10000||c==0) {
+        alert('输入有误');
+    } else {
+        console.log((a + b) / c);
+    }
+
+</script>
+
+<script id = 'ch0103/04'>
+    var a = Number(prompt('请输入被除数'));
+    var b = Number(prompt('请输入除数'));
+    var c = a % b;
+    var d = parseInt(a / b);
+    console.log(d,c);
+</script>
+
+<script id='ch0103/05'>
+    var a = Number(prompt('请输入分子'));
+    var b = Number(prompt('请输入分母'));
+    var c = a/b;
+    console.log(c.toFixed(9));
+    
+</script>
+
+<script id='ch0103/06'>
+  var a = Number(prompt('确诊多少人'));
+  var b = Number(prompt('死了多少人'));
+  var c = (b / a)*100;
+  console.log(c.toFixed(3)+'%');
+</script>
+
+<script id='ch0103/07'>
+  var x = Number(prompt('请输入x'));
+  var a = Number(prompt('请输入a'));
+  var b = Number(prompt('请输入b'));
+  var c = Number(prompt('请输入c'));
+  var d = Number(prompt('请输入d'));
+  var result = a*x*x*x+b*x*x+c*x+d;
+  console.log(result.toFixed(7));
+</script>
+
+<script id="ch0103/08">
+  var f = Number(prompt('请输入华氏温度'));
+  if(f<-459.67){
+    alert('输入有误')
+  }else{
+    console.log((5 * (f - 32) / 9).toFixed(5));
+}
+</script>
+
+<script id="ch0103/09">
+  var r = Number(prompt('请输入半径'));
+  var pi = 3.14159;
+  var d = (2*r).toFixed(4);
+  var long = (2*pi*r).toFixed(4);
+  var s = (pi*r*r).toFixed(4);
+  console.log(d,long,s);
+</script>
+
+<script id="ch0103/10">
+  var r1 = Number(prompt('请输入电阻1'));
+  var r2 = Number(prompt('请输入电阻2'));
+  var R = 1/(1/r1+1/r2);
+  console.log(R.toFixed(2));
+</script>
+
+
+
