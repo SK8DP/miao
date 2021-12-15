@@ -353,3 +353,88 @@
     console.log(z);
   }
 </script>
+
+<script id="ch0104/16">
+  var x = Number(prompt('请输入'));
+  var y = Number(prompt('请输入'));
+  var z = Number(prompt('请输入'));
+  if((x+y)>z&&(Math.abs(x - y))<z&& (x + z) > y && (Math.abs(x - z)) < y&& (y + z) > x && (Math.abs(y - z)) < x){
+    console.log('yes');
+  }else{
+    console.log('no');
+  }
+</script>
+
+<script id="ch0104/17">
+  var x = Number(prompt('请输入'));
+  if (x%4==0&&x%100!=0||x%400==0) {
+    console.log('Y');
+  } else {
+    console.log('N');
+  }
+</script>
+
+<script id="ch0104/18">
+  var x = Number(prompt('请输入x'));
+  var y = Number(prompt('请输入y'));
+  if (x>=-1&&x<=1&& y >= -1 && y <= 1) {
+    console.log('yes');
+  } else {
+    console.log('no');
+  }
+</script>
+
+<script id="ch0104/19">
+  var x = Number(prompt('请输入参数1'));
+  var y = Number(prompt('请输入参数2'));
+  var s = prompt('请输入运算符');
+  if (y==0&&s.charCodeAt(0)==47) {
+    console.log('Divided by zero');
+  }
+  switch(s.charCodeAt(0)){
+    case 43:
+    console.log(x+y);
+    break;
+    case 45:
+    console.log(x-y);
+    break;
+    case 42:
+    console.log(x * y);
+    break;
+    case 47:
+    console.log(x / y);
+    break;
+    default:
+    console.log('Invalid operator');
+  }
+</script>
+
+<script id="ch0104/20">
+  var a = Number(prompt('请输入a'));
+  var b = Number(prompt('请输入b'));
+  var c = Number(prompt('请输入c'));
+  var delta = b*b-4*a*c;
+  var y1=((-b+Math.sqrt(delta))/(2*a)).toFixed(5);
+  var y2 = ((-b - Math.sqrt(delta)) / (2 * a)).toFixed(5);
+  var z1 = (-b / (2*a)).toFixed(5);
+  var z2 = (Math.sqrt(-delta)/(2*a)).toFixed(5);
+  if(b*b==4*a*c){
+    console.log('x1=x2='+y1);
+  }else if(b*b>4*a*c){
+    console.log('x1='+y1+';x2='+y2);
+  }else{
+    console.log('x1='+z1+'+'+z2+'i;x2='+z1+'-'+z2+'i');
+  }
+</script>
+
+<script id="ch0104/21">
+  var n = Number(prompt('请输入n'));
+  var x = Number(prompt('请输入x'));
+  var y = Number(prompt('请输入y'));
+  var apples = n - Math.ceil(y / x);
+  if (y <= n * x) {
+    console.log(apples);
+  } else {
+    alert('输入有误，请刷新后重新输入');
+  }
+</script>
