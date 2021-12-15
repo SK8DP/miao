@@ -438,3 +438,55 @@
     alert('输入有误，请刷新后重新输入');
   }
 </script>
+
+<script id="ch0105/01">
+  var n = Number(prompt('请输入人数'));
+  var sum = 0;
+  for(var i =1;i<=n;i++){
+    var a = Number(prompt('请输入年龄'));
+    sum+=a;
+  }
+  console.log((sum/n).toFixed(2));
+</script>
+
+<script id="ch0105/02">
+  var sum = 0;
+  for (var i = 1; i <= 12; i++) {
+    var a = Number(prompt('请输入第'+i+'个月的结余'));
+    sum += a;
+  }
+  console.log('$'+(sum / 12).toFixed(2));
+</script>
+
+<script id="ch0105/03">
+  var n = Number(prompt('请输入n'));
+  var sum = 0;
+  for (var i = 1; i <= n; i++) {
+    var f = Number(prompt('请输入浮点数'));
+    sum += f;
+  }
+    console.log((sum / n).toFixed(4));
+</script>
+
+<script id="ch0105/04">
+  var n = Number(prompt('请输入n'));
+  var sum = 0;
+  for (var i = 1; i <= n; i++) {
+    var d = Number(prompt('请输入整数'));
+    sum += d;
+  }
+  var av = (sum/n).toFixed(5);
+  console.log(sum+' '+av);
+</script>
+
+<script id="ch0105/05">
+  var n = Number(prompt('请输入人数'));
+  var max = 0;
+  for (var i = 1; i <= n; i++) {
+    var a = Number(prompt('请输入分数'));
+    if(a>max){
+      max=a;
+    }
+  }
+  console.log(max.toFixed(0));
+</script>
