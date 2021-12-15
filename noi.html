@@ -154,6 +154,7 @@
 </script>
 
 <script id="ch0103/18">
+  debugger
   var a1 = Number(prompt('请输入a1'));
   var a2 = Number(prompt('请输入a2'));
   var n = Number(prompt('请输入n'));
@@ -268,5 +269,87 @@
     console.log(1);
   }else{
     console.log(0);
+  }
+</script>
+
+<script id="ch0104/11">
+  var d = Number(prompt('请输入'));
+  switch(d){
+    case 1:
+    console.log('NO');
+    break;
+    case 2:
+    console.log('YES');
+    break;
+    case 3:
+    console.log('NO');
+    break;
+    case 4:
+    console.log('YES');
+    break;
+    case 5:
+    console.log('NO');
+    break;
+    case 6:
+    console.log('YES');
+    break;
+    case 7:
+    console.log('YES');
+    break;
+  }
+</script>
+
+<script id="ch0104/12">
+  var c = Number(prompt('请输入'));
+  var wt = c/1.2;
+  var bt = c/3+27+23;
+  if(wt>bt){
+    console.log('Bike');
+  }else if(wt<bt){
+    console.log('Walk');
+  }else{
+    console.log('All');
+  }
+
+</script>
+
+<script id="ch0104/13">
+  var x = Number(prompt('请输入'));
+  if (x>=0&&x<5) {
+    console.log((-x + 2.5).toFixed(3));
+  } else if(x >= 5 && x < 10) {
+    console.log((2 - 1.5 * (x - 3) * (x - 3)).toFixed(3));
+  }else{
+    console.log((x / 2 - 1.5).toFixed(3));
+  }
+</script>
+
+<script id="ch0104/14">
+  var w = Number(prompt('请输入重量'));
+  var x = prompt('请输入是否加急');
+  var s=0;
+  if(w<=1000){
+    s=8;
+  }else{
+    s=8+(Math.ceil((w - 1000) / 500))*4;
+  }
+  if(x.charCodeAt(0)==121){
+    s+=5
+  }else{
+    s=s;
+  }
+  console.log(s);
+</script>
+
+<script id="ch0104/15">
+  var x = Number(prompt('请输入'));
+  var y = Number(prompt('请输入'));
+  var z = Number(prompt('请输入'));
+  var s;
+  x>y?s=x:s=y;
+  if(s>z){
+    console.log(s);
+  }else{
+    console.log(z);
   }
 </script>
