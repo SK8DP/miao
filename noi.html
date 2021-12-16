@@ -490,3 +490,89 @@
   }
   console.log(max.toFixed(0));
 </script>
+
+<script id="ch0105/06">
+  var n = Number(prompt('请输入'));
+  var max = 0;
+  var min = Infinity;
+  for (var i = 1; i <= n; i++) {
+    var a = Number(prompt('请输入非负整数'+i));
+    if (a > max) {
+      max = a;
+    }
+    if (a<min){
+      min = a;
+    }
+  }
+  console.log((max-min).toFixed(0));
+</script>
+
+<script id="ch0105/07">
+  var sg=0;
+  var sv=0;
+  var sb=0;
+  var n = Number(prompt('请输入天数'));
+  for(var i=1;i<=n;i++){
+    for(var j=1;j<=3;j++){
+      if(j==1){
+        var g = Number(prompt('请输入第'+i+'天的金牌'));
+        var sg=sg+g;
+      }else if(j==2){
+        var s = Number(prompt('请输入第' + i + '天的银牌'));
+        var sv = sv + s;
+      }else{
+        var b = Number(prompt('请输入第' + i + '天的铜牌'));
+        var sb = sb + b;
+      }
+      
+    }
+  }
+  console.log(sg, sv, sb, sg + sv + sb);
+</script>
+
+<script id="ch0105/08">
+  var sum = 0;
+  var n = Number(prompt('请输入边数'));
+  for(var i=1;i<=n-1;i++){
+    var c = Number(prompt('请输入第'+i+'个角'));
+    sum+=c;
+  }
+  console.log((n-2)*180-sum);
+</script>
+
+<script id="ch0105/09"> 
+  var m = Number(prompt('请输入m'));
+  var n = Number(prompt('请输入n'));
+  var s = 0;
+  var sum = 0;
+  if(m%2==0){
+    s=m+1;
+    // sum=s;
+  }else{
+    s=m;
+    // sum=s;
+  }
+  while(s<=n){
+    sum+=s;
+    s+=2;
+  }
+  console.log(sum);
+</script>
+
+<script id="ch0105/10">
+   var m = Number(prompt('请输入m'));
+   var n = Number(prompt('请输入n'));
+   var s = 0;
+   var sum = 0;
+   if(m%17==0){
+    s=m;
+   }else{
+     s=(Math.ceil(m/17))*17
+   }
+   while (s <= n) {
+      sum += s;
+      s += 17;
+    }
+    console.log(sum);
+
+</script>
