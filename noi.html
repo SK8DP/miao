@@ -637,3 +637,77 @@
     }
   console.log(Math.floor(M));
 </script>
+
+<script id="ch0105/16">
+  var N = Number(prompt('请输入N'));
+  var K = Number(prompt('请输入K'));
+  var s = N;
+  var h = 200;
+  var i =1;
+
+  while(s<h){
+    s+=N;
+    h*=1+K/100;
+    i++;
+  }
+  if(i<=20){
+    console.log(i);
+  }else{
+    console.log('Impossible');
+  }
+</script>
+
+<script id="ch0105/17">
+   var k = Number(prompt('请输入k'));
+   var ret = 0;
+   var first = 1;
+   var second = 1;
+   for(var i=3;i<=k;i++){
+     ret=first+second;
+     first=second;
+     second=ret;
+   }
+   console.log(second);
+</script>
+
+<script id="ch0105/18">
+  var n = Number(prompt('请输入n'));
+  var b = Number(prompt('请输入鸡尾酒病例数'));
+  var z = Number(prompt('请输入鸡尾酒治愈数'));
+  var rate = z/b*100;
+  for(var i=1;i<n;i++){
+    var sb = Number(prompt('请输入病例数'+i));
+    var sz = Number(prompt('请输入治愈数'+i));
+    var srate = sz/sb*100;
+    if((srate - rate)>5){
+      console.log('better');
+    }else if((rate - srate)>5){
+      console.log('worse');
+    }else{
+      console.log('same');
+    }
+  }
+</script>
+
+<script id="ch0105/19">
+  var n = Number(prompt('请输入屋顶数'));
+  var sum = 0;
+  for(i=0;i<n;i++){
+    var x = Number(prompt('请输入x'));
+    var y = Number(prompt('请输入y'));
+    var p = Number(prompt('请输入人数'));
+    var sum = sum+Math.ceil(((Math.sqrt(x * x + y * y))*2) / 50 + p * 1.5);
+  }
+  console.log(sum);
+</script>
+
+<script id="ch0105/20">
+  var h = Number(prompt('请输入初始高度'));
+  var sum = 0;
+  for(i=0;i<10;i++){
+    sum+=(h*1.5);
+    h*= 0.5;
+  }
+  console.log((sum - h).toFixed(4));
+  console.log(h.toFixed(7));
+</script>
