@@ -576,3 +576,62 @@
     console.log(sum);
 
 </script>
+
+<script id="ch0105/11">
+  var k = Number(prompt('请输入k'));
+  var one=0,five=0,ten=0;
+  for(i=1;i<=k;i++){
+    var p = Number(prompt('请输入第'+i+'个正整数'));
+    if(p==1){
+      one++;
+    }else if(p==5){
+      five++;
+    }else if(p==10){
+      ten++;
+    }
+  }
+  console.log(one+'\n'+five+ '\n'+ten);
+</script>
+
+<script id="ch0105/12">
+  var N = Number(prompt('请输入N'));
+  var m = Number(prompt('请输入m'));
+  var s = 0;
+  for(i=1;i<=N;i++){
+    var num = Number(prompt('请输入第'+i+'个数字'));
+    if(num==m){
+      s++;
+    }
+  }
+  console.log(s);
+
+</script>
+
+<script id="ch0105/13">
+  var a = Number(prompt('请输入a'));
+  var n = Number(prompt('请输入n'));
+  var s=a;
+  for(i=1;i<n;i++){
+    s*=a;
+  }
+  console.log(s);
+</script>
+
+<script id="ch0105/14">
+  var x = Number(prompt('请输入x'));
+  var n = Number(prompt('请输入n'));
+  for (i = 0; i < n; i++) {
+    x *= 1+0.001;
+  }
+  console.log(x.toFixed(4));
+</script>
+
+<script id="ch0105/15">
+  var R = Number(prompt('请输入R'));
+  var M = Number(prompt('请输入M'));
+  var Y = Number(prompt('请输入Y'));
+  for (i = 0; i < Y; i++) {
+      M *= 1 + R/100;
+    }
+  console.log(Math.floor(M));
+</script>
