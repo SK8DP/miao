@@ -711,3 +711,18 @@
   console.log((sum - h).toFixed(4));
   console.log(h.toFixed(7));
 </script>
+
+<script id="ch0105/21">
+  var n = Number(prompt('请输入'));
+  var pre = n * 3 + 1;
+  var fir=pre*2,sec=fir/2,tem=sec/2;
+  console.log(n+'*3+1='+pre);
+  while(sec!=1){
+    fir=sec;
+    sec=tem;
+    tem/=2;
+    console.log(fir+'/'+'2'+'='+sec);
+  }
+  console.log('End');
+
+</script>
