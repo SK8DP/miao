@@ -247,7 +247,7 @@
   }
 </script>
 
-<script id="ch0104/09">
+<!-- <script id="ch0104/09">
   var n = Number(prompt('请输入'));
   if(n%3==0&&n%5==0&&n%7==0){
     console.log(3,5,7);
@@ -258,6 +258,27 @@
   }else if(n % 3 == 0 && n % 7 == 0){
     console.log(3, 7);
   }else{
+    console.log('n');
+  }
+</script> -->
+
+<!-- 优化写法 -->
+<script id="ch0104/09">
+  var n = Number(prompt('请输入'));
+  var flag = false;
+  if (n % 3 == 0) {
+    console.log(3);
+    flag = true;
+  }
+  if (n % 5 == 0) {
+    console.log(5);
+    flag = true;
+  }
+  if (n % 7 == 0) {
+    console.log(7);
+    flag = true;
+  }
+  if (!flag) {
     console.log('n');
   }
 </script>
