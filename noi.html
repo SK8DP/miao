@@ -550,7 +550,7 @@
   }
   console.log(sg, sv, sb, sg + sv + sb);
 </script>
-
+     
 <script id="ch0105/08">
   var sum = 0;
   var n = Number(prompt('请输入边数'));
@@ -745,5 +745,79 @@
     console.log(fir+'/'+'2'+'='+sec);
   }
   console.log('End');
-
 </script>
+
+<script id="ch0105/22">
+  var purse = 0, ex, mom = 0, flag = 1;
+  for (var i = 1; i <= 12; i++) {
+    ex = Number(prompt('请输入第' + i + '个月的预算'));
+    purse += 300;
+    purse -= ex;
+    if (purse < 0) {
+      console.log(-i);
+      flag = 0;
+      break;
+    }
+    mom += (Math.trunc(purse / 100)) * 100;
+    purse %= 100;
+  }
+  if (flag) {
+    console.log(mom * (1.2) + purse);
+  }
+</script>
+
+<script id="ch0105/23">
+  var med = Number(prompt('请输入总药量'));
+  var peo = Number(prompt('请输入总人数'));
+  var arr = [];
+  var sum = 0;
+  for (var i = 0; i < peo; i++) {
+    arr[i] = Number(prompt('请输入分药量'));
+  }
+  for (var j = 0; j < arr.length; j++) {
+    if (arr[j] < med) {
+      med -= arr[j];
+      sum++;
+    }
+  }
+  console.log(peo - sum);
+</script>
+
+<script id="ch0105/24">
+  var n = Number(prompt('请输入n'));
+  var max = 0;
+  var hour = 0;
+  var arr = [];
+  for (var i = 0; i < n; i++) {
+    var shrink = Number(prompt('请输入收缩压'));
+    var relax = Number(prompt('请输入舒张压'));
+    if (shrink >= 90 && shrink <= 140 && relax >= 60 && relax <= 90) {
+      max++;
+      arr[i] = max;
+    } else {
+      max = 0;
+      arr[i] = max;
+    }
+  }
+  for (var j = 0; j < arr.length; j++) {
+    if (arr[j] > hour) {
+      hour = arr[j]
+    }
+  }
+  console.log(hour);
+</script>
+
+<script id="ch0105/25">
+  var i, j, k;
+  for (i = 1; i < 7; i++) {
+    for (j = 0; j < 7; j++) {
+      for (k = 1; k < 7; k++) {
+        if (49 * i + 7 * j + k == i + 9 * j + 81 * k) {
+          console.log(i * 49 + j * 7 + k);
+        }
+      }
+    }
+  }
+</script>
+
+
