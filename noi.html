@@ -926,5 +926,136 @@
   console.log(str); 
 </script>
 
+<script id="ch0105/32">
+  var n = Number(prompt('请输入n'));
+  var sum = 0, a = 2, b = 1, c, i;
+  for (i = 1; i <= n; i++) {
+    sum += a / b;
+    c = a;
+    a += b;
+    b = c;
+  }
+  console.log(sum.toFixed(4));
+</script>
+
+<script id="ch0105/33">
+  var n = Number(prompt('请输入n'));
+  var sum = 0, num = -1, i;
+  for (i = 1; i <= n; i++) {
+    num *= -1;
+    sum = sum + num * (1 / i);
+  }
+  console.log(sum.toFixed(4));
+</script>
+
+<script id="ch0105/34">
+  var n = Number(prompt('请输入n'));
+  var sum = 0, i, j;
+  for (i = 1; i <= n; i++) {
+    a = 1, b = 1;
+    for (j = 1; j <= i; j++) {
+      b *= a;
+      a++;
+    }
+    sum += b;
+  }
+  console.log(sum);
+</script>
+
+<script id="ch0105/35">
+  var n = Number(prompt('请输入n'));
+  var sum = 1, i, j;
+  for (i = 1; i <= n; i++) {
+    a = 1, b = 1;
+    for (j = 1; j <= i; j++) {
+      b *= a;
+      a++;
+    }
+    sum += (1 / b);
+  }
+  console.log(sum.toFixed(10));
+</script>
+
+<script id="ch0105/36">
+  var x = Number(prompt('请输入x'));
+  var n = Number(prompt('请输入n'));
+  var s = 1, t = 1, i;
+  for (i = 1; i <= n; i++) {
+    t *= x;
+    s += t;
+  }
+  console.log(s.toFixed(2));
+</script>
+
+<script id="ch0105/37">
+  var m = Number(prompt('请输入M'));
+  var n = Number(prompt('请输入N'));
+  var x = Number(prompt('请输入X'));
+  var t;
+  while (x > 0) {
+    t = parseInt(m / n);
+    if (m % n != 0) {
+      t++;
+    }
+    if (x < t) {
+      break;
+    }
+    x -= t;
+    t = parseInt(m / n);
+    n += t;
+  }
+  console.log(n);
+</script>
+
+<script id="ch0105/38">
+  var times = Number(prompt('请输入总组数'));
+  var i, j;
+  var arr = [];
+  var num;
+  for (j = 0; j < times; j++) {
+    var n = Number(prompt('请输入N'));
+    var str = '';
+    for (i = n; i >= 0; i--) {
+      arr[n - i] = Number(prompt('请输入' + i + '次项系数'));
+    }
+    for (i = 0; i < arr.length - 1; i++) {
+      num = arr[i] * (n - i)
+      str = str + num + ' ';
+    }
+    if (n == 0) {
+      console.log(0);
+    } else {
+      console.log(str);
+    }
+  }
+</script>
+
+<script id="ch0105/39">
+  var n = Number(prompt('请输入n'));
+  var i, j, sum = 0;
+  for (i = 1; i <= n; i++) {
+    if ((i % 7) != 0 && (i % 10) != 7 && parseInt(i / 10) != 7) {
+      j = i * i;
+      sum += j;
+    }
+  }
+  console.log(sum);
+</script>
+
+<script id="ch0105/40">
+  var n = Number(prompt('请输入n'));
+  var i, num, sum = 0;
+  for (i = 1; i <= n; i++) {
+    num = i;
+    while (num) {
+      if (num % 10 == 1) {
+        sum++;
+      }
+      num = parseInt(num / 10);//惯用套路：先对10取余再除10取整，如此往复就可以从低位到高位依次取出每一位数字
+    }
+  }
+  console.log(sum);
+</script>
+
 
 
