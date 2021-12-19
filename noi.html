@@ -854,9 +854,9 @@
   var str = '';
   var flag = 0;
   while (n) {
-    if (flag == 0) {
+    if (flag == 0) {   //惯用套路：通过flag的取值来控制第一项的格式。这个套路通常用于if else语句中，而且flag的取值通常只有0和1，相当于是个开关
       str += (n % 10).toFixed(0);
-      flag = 1;
+      flag = 1;  //惯用套路：通过flag的取值来控制第一项的格式。这个套路通常用于if else语句中，而且flag的取值通常只有0和1，相当于是个开关
     } else {
       str = str + ' ' + (n % 10).toFixed(0);
     }
@@ -914,9 +914,9 @@
   }
   for (i = 1; i <= n; i++) {
     if (arr[i] == -1) {
-      if (flag == 0) {
+      if (flag == 0) {  //惯用套路：通过flag的取值来控制第一项的格式。这个套路通常用于if else语句中，而且flag的取值通常只有0和1，相当于是个开关
         str += i.toFixed(0);
-        flag = 1;
+        flag = 1;  //惯用套路：通过flag的取值来控制第一项的格式。这个套路通常用于if else语句中，而且flag的取值通常只有0和1，相当于是个开关
       }
       else {
         str = str + ',' + i;
@@ -1015,12 +1015,18 @@
   for (j = 0; j < times; j++) {
     var n = Number(prompt('请输入N'));
     var str = '';
+    var flag = 1;
     for (i = n; i >= 0; i--) {
       arr[n - i] = Number(prompt('请输入' + i + '次项系数'));
     }
     for (i = 0; i < arr.length - 1; i++) {
       num = arr[i] * (n - i)
-      str = str + num + ' ';
+      if (flag) {   //惯用套路：通过flag的取值来控制第一项的格式。这个套路通常用于if else语句中，而且flag的取值通常只有0和1，相当于是个开关
+        str = str + num;
+        flag = 0;    //惯用套路：通过flag的取值来控制第一项的格式。这个套路通常用于if else语句中，而且flag的取值通常只有0和1，相当于是个开关
+      } else {
+        str = str + ' ' + num;
+      }
     }
     if (n == 0) {
       console.log(0);
@@ -1056,6 +1062,90 @@
   }
   console.log(sum);
 </script>
+
+<script id="ch0105/41">
+  var l = Number(prompt('请输入L'));
+  var r = Number(prompt('请输入R'));
+  var i, num, sum = 0;
+  for (i = l; i <= r; i++) {
+    num = i;
+    while (num) {
+      if (num % 10 == 2) {
+        sum++;
+      }
+      num = parseInt(num / 10);//惯用套路：先对10取余再除10取整，如此往复就可以从低位到高位依次取出每一位数字
+    }
+  }
+  console.log(sum);
+</script>
+
+<script id="ch0105/42">
+  var h = Number(prompt('请输入高 '));
+  var w = Number(prompt('请输入宽'));
+  var n = prompt('请输入符号');
+  var x = Number(prompt('请输入是否空心'));
+  var i, j;
+  for (i = 1; i <= h; i++) {
+    var str = '';
+    for (j = 1; j <= w; j++) {
+      if (x == 1) {
+        str += n;
+
+      } else {
+        if (i != 1 && i != h && j != 1 && j != w) {
+          str += ' ';
+        } else {
+          str += n;
+        }
+      }
+    }
+    console.log(str);
+  }
+</script>
+
+<script id="ch0105/43">
+  var n = Number(prompt('n'));
+  for (var i = 2; i <= Math.sqrt(n); i++) { //通过对n开平方可以减小搜索范围，同时由此可以确定较小的那个质数，进而确定较大的那个质数
+    if (n % i == 0) {
+      console.log(n / i);
+      break;
+    }
+  }
+</script>
+
+<script id="ch0105/44">
+  var n = Number(prompt('n'));
+  var i, count = 0;
+  for (i = 2; i <= 10000; i++) {
+    if ((i == 2 || i == 3 || i == 5 || i == 7) || (i % 2 !== 0 && i % 3 != 0 && i % 5 != 0 && i % 7 != 0)) {
+      count++;
+    }
+    if (count == n) {
+      console.log(i);
+      break;
+    }
+  }
+</script>
+
+<script id="ch0105/45">
+  var n = Number(prompt('n'));
+  var i, now = 0, sum = 0, days = 0;
+  while (true) {
+    now++;
+    if (now + days > n) {
+      break;
+    }
+    sum += now * now;
+    days += now;
+  }
+  for (i = days + 1; i <= n; i++) {
+    sum += now;
+  }
+  console.log(sum);
+</script>
+
+
+
 
 
 
