@@ -813,11 +813,84 @@
     for (j = 0; j < 7; j++) {
       for (k = 1; k < 7; k++) {
         if (49 * i + 7 * j + k == i + 9 * j + 81 * k) {
-          console.log(i * 49 + j * 7 + k);
+          console.log(i * 49 + j * 7 + k, i * 100 + j * 10 + k, k * 100 + j * 10 + i);
         }
       }
     }
   }
 </script>
+
+<script id="ch0105/26">
+  var count = 0;
+  var n = Number(prompt('请输入n'));
+  for (i = 0; i < n; i++) {
+    var num = Number(prompt('请输入四位数'));
+    var odd = num % 10;
+    var ten = Math.trunc((num % 100) / 10);
+    var hunderd = parseInt(((num % 1000) / 100));
+    var thousand = parseInt(num / 1000);
+    if ((odd - thousand - hunderd - ten) > 0) {
+      count++;
+    }
+  }
+  console.log(count);
+</script>
+
+<script id="ch0105/27">
+  var k, i = 1, sn = 0;
+  var k = Number(prompt('请输入k'));
+  while (i) {
+    sn += 1 / i;
+    if (sn > k) {
+      break;
+    }
+    i++;
+  }
+  console.log(i);
+</script>
+
+<script id="ch0105/28">
+  var n = Number(prompt('请输入n'));
+  var str = '';
+  while (n) {
+    str = str + (n % 10).toFixed(0) + ' ';
+    n = Math.trunc(n / 10);
+  }
+  console.log(str);
+</script>
+
+<script id="ch0105/29">
+  var n = Number(prompt('请输入n'));
+  var str = '';
+  while (n) {
+    if (n % 10 != 0) {
+      str += (n % 10).toFixed(0);
+      if (n < 0) {
+        n *= -1;
+      }
+    }
+    n = Math.trunc(n / 10);
+  }
+  console.log(str);
+</script>
+
+<script id="ch0105/30">
+  var n = Number(prompt('请输入n'));
+  var k = Number(prompt('请输入k'));
+  var m = n;
+  var count = 0;
+  while (m) {
+    if (m % 10 == 3) {
+      count++;
+    }
+    m = Math.trunc(m / 10);
+  }
+  if (count == k && n % 19 == 0) {
+    console.log('YES');
+  } else {
+    console.log('NO');
+  }
+</script>
+
 
 
