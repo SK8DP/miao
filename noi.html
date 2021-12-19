@@ -852,8 +852,15 @@
 <script id="ch0105/28">
   var n = Number(prompt('请输入n'));
   var str = '';
+  var flag = 0;
   while (n) {
-    str = str + (n % 10).toFixed(0) + ' ';
+    if (flag == 0) {
+      str += (n % 10).toFixed(0);
+      flag = 1;
+    } else {
+      str = str + ' ' + (n % 10).toFixed(0);
+    }
+
     n = Math.trunc(n / 10);
   }
   console.log(str);
@@ -890,6 +897,33 @@
   } else {
     console.log('NO');
   }
+</script>
+
+<script id="ch0105/31">
+  var n = Number(prompt('请输入N'));
+  var m = Number(prompt('请输入M'));
+  var i, j, flag = 0, str = '';
+  var arr = [];
+  for (i = 1; i <= n; i++) {
+    arr[i] = 1;
+  }
+  for (i = 1; i <= m; i++) {
+    for (j = i; j <= n; j += i) {
+      arr[j] = -1 * arr[j];
+    }
+  }
+  for (i = 1; i <= n; i++) {
+    if (arr[i] == -1) {
+      if (flag == 0) {
+        str += i.toFixed(0);
+        flag = 1;
+      }
+      else {
+        str = str + ',' + i;
+      }
+    }
+  }
+  console.log(str); 
 </script>
 
 
