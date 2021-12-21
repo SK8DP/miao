@@ -684,9 +684,11 @@
    var first = 1;
    var second = 1;
    for(var i=3;i<=k;i++){
-     ret=first+second;
-     first=second;
-     second=ret;
+    //  ret=first+second;
+    //  first=second;
+    //  second=ret;
+    second = first + second;
+    first = second - first;
    }
    console.log(second);
 </script>
@@ -1143,6 +1145,50 @@
   }
   console.log(sum);
 </script>
+
+<script id="narcissistic">
+  var n = Number(prompt('n'));
+  function isNarcissistic(n) {
+    var sum = 0;
+    var N = n;
+    while (n) {
+      sum += (n % 10) * (n % 10) * (n % 10);
+      n = parseInt(n / 10);
+    }
+    if (sum == N) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  console.log(isNarcissistic(n));
+</script>
+
+<script id="narcissistics">
+  function isNarcissistic(n) {
+    var sum = 0;
+    var N = n;
+    while (n) {
+      sum += (n % 10) * (n % 10) * (n % 10);
+      n = parseInt(n / 10);
+    }
+    if (sum == N) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  for (var i = 1; i <= 10000; i++) {
+    if (isNarcissistic(i)) {
+      console.log(i);
+    }
+  }
+</script>
+
+
+
+
+
 
 
 
