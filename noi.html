@@ -1156,9 +1156,9 @@
       n = parseInt(n / 10);
     }
     if (sum == N) {
-      return true;
+      return 'YES';
     } else {
-      return false;
+      return 'NO';
     }
   }
   console.log(isNarcissistic(n));
@@ -1178,7 +1178,7 @@
       return false;
     }
   }
-  for (var i = 1; i <= 10000; i++) {
+  for (var i = 10; i <= 10000; i++) {
     if (isNarcissistic(i)) {
       console.log(i);
     }
