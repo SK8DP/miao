@@ -1185,6 +1185,35 @@
   }
 </script>
 
+<script id="palindrom">
+  let n = Number(prompt('n'));
+  function isPalindrom(n) {
+    let m = n, x = 0;
+    while (n) {
+      x = x * 10 + n % 10;
+      n = parseInt(n / 10);
+    }
+    if (x == m) {
+      return 'YES';
+    } else {
+      return 'NO';
+    }
+  }
+  console.log(isPalindrom(n));
+</script>
+
+<script id="weekday">
+  let y = Number(prompt('year'));
+  let m = Number(prompt('month'));
+  function weekday(y, m) {
+    let arr = [7, 1, 2, 3, 4, 5, 6];
+    let day = new Date('\'' + m + '/1/' + y + '\'').getDay();
+    return arr[day];
+  }
+  console.log(weekday(y, m));
+</script>
+
+
 
 
 
