@@ -1147,42 +1147,72 @@
 </script>
 
 <script id="narcissistic">
-  var n = Number(prompt('n'));
-  function isNarcissistic(n) {
-    var sum = 0;
-    var N = n;
-    while (n) {
-      sum += (n % 10) * (n % 10) * (n % 10);
-      n = parseInt(n / 10);
-    }
-    if (sum == N) {
-      return 'YES';
-    } else {
-      return 'NO';
-    }
+  function digitWidth(m) {
+    var width = 0;
+    do {
+      var single = m % 10;
+      width++;
+      m = (m - single) / 10;
+    } while (m > 0)
+    return width;
   }
-  console.log(isNarcissistic(n));
+  function power(x, n) {
+    var result = 1;
+    for (var i = 0; i < n; i++) {
+      result *= x;
+    }
+    return result;
+  }
+  function isNarcissistic(n) {
+    var w = digitWidth(n);
+    var m = n;
+    var sum = 0;
+    while (m > 0) {
+      var single = m % 10;
+      sum += power(single, w);
+      m = (m - single) / 10;
+    }
+    return sum == n;
+  }
+  var n = Number(prompt('n'));
+  console.log(isNarcissistic(n) ? 'YES' : 'NO');
+
 </script>
 
 <script id="narcissistics">
-  function isNarcissistic(n) {
-    var sum = 0;
-    var N = n;
-    while (n) {
-      sum += (n % 10) * (n % 10) * (n % 10);
-      n = parseInt(n / 10);
-    }
-    if (sum == N) {
-      return true;
-    } else {
-      return false;
-    }
+  function digitWidth(m) {
+    var width = 0;
+    do {
+      var single = m % 10;
+      width++;
+      m = (m - single) / 10;
+    } while (m > 0)
+    return width;
   }
-  for (var i = 10; i <= 10000; i++) {
+  function power(x, n) {
+    var result = 1;
+    for (var i = 0; i < n; i++) {
+      result *= x;
+    }
+    return result;
+  }
+  function isNarcissistic(n) {
+    var w = digitWidth(n);
+    var m = n;
+    var sum = 0;
+    while (m > 0) {
+      var single = m % 10;
+      sum += power(single, w);
+      m = (m - single) / 10;
+    }
+    return sum == n;
+  }
+  for (var i = 1; i <= 10000; i++) {
     if (isNarcissistic(i)) {
       console.log(i);
     }
   }
+
 </script>
 
 <script id="palindrom">
