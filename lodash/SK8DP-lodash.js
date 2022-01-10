@@ -1,3 +1,3 @@
-var SK8DP = {
+var sk8dp = {
 
 }
