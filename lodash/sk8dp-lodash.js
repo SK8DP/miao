@@ -34,13 +34,13 @@ var sk8dp = {
     let length = array == null ? 0 : array.length;
     return length > 0 ? array.slice(0, n == 0 ? length : -n) : [];
   }, 
-  fill: function fill(array, val, start = 0, end = array.length) {
+  fill: function (array, val, start = 0, end = array.length) {
     for (let i = start; i < end; i++) {
       array[i] = val
     }
     return array
   },
-  flatten: function flatten(array) {
+  flatten: function (array) {
     if (!array) return []
     let result = []
     for (let i of array) {
