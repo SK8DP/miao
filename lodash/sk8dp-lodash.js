@@ -42,5 +42,13 @@ var sk8dp = {
   },
   flatten: function (array) { //原理请见1.12代码
     return [].concat.apply([], array);
+  },
+  flattenDeep: function (array) {//原理请见1.12代码
+    return array.reduce((result, item) => {
+      if (Array.isArray(item)) {//如果元素是数组
+        return result.concat(flattenDeep(item))//原理：在上面讲flatten的“reduce改进版(融合了concat)”时已经详细解释过了，故不赘述！
+      }
+      return result.concat(item)//如果元素是非数组
+    }, [])
   }
 }
