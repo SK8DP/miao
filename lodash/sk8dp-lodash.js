@@ -40,16 +40,7 @@ var sk8dp = {
     }
     return array
   },
-  flatten: function (array) {
-    if (!array) return []
-    let result = []
-    for (let i of array) {
-      if (typeof i == 'object') {
-        result.push(...i)
-      } else {
-        result.push(i)
-      }
-    }
-    return result
+  flatten: function (array) { //原理请见1.12代码
+    return [].concat.apply([], array);
   }
 }
