@@ -50,5 +50,16 @@ var sk8dp = {
       }
       return result.concat(item)//如果元素是非数组
     }, [])
+  },
+  flattenDepth: function (array, n = 1) {
+    if (n == 0) {
+      return array.slice()
+    }
+    return array.reduce((result, item) => {
+      if (Array.isArray(item)) {
+        return result.concat(sk8dp["flattenDepth"](item, n - 1))
+      }
+      return result.concat(item)
+    }, [])
   }
 }
