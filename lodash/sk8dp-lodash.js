@@ -61,5 +61,17 @@ var sk8dp = {
       }
       return result.concat(item)
     }, [])
+  },
+  negate: function (predicate) { // 求一个函数的反函数，即原函数返回真时，创建出的函数返回假
+    return function (...args) {
+      return !predicate(...args)
+    }
+  },
+  mapValues: function (obj, mapper) {//需求：对对象的值进行某种运算得到新结果之后，让键映射到新的结果。这个函数不在老谢的排行榜里，但在lodash里    //mapper函数负责实现你想对对象的值进行的某种运算
+    var result = {}//result里放运算后的新对象
+    for (var key in obj) {
+      result[key] = mapper(obj[key], key)//键还是原来的键，但值已经通过mapper进行重新运算了，并且通过这部就在键和值直接建立了映射关系
+    }
+    return result
   }
 }
