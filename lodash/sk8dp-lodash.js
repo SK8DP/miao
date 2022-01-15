@@ -67,11 +67,20 @@ var sk8dp = {
       return !predicate(...args)
     }
   },
-  mapValues: function (obj, mapper) {//需求：对对象的值进行某种运算得到新结果之后，让键映射到新的结果。这个函数不在老谢的排行榜里，但在lodash里    //mapper函数负责实现你想对对象的值进行的某种运算
-    var result = {}//result里放运算后的新对象
-    for (var key in obj) {
-      result[key] = mapper(obj[key], key)//键还是原来的键，但值已经通过mapper进行重新运算了，并且通过这部就在键和值直接建立了映射关系
+  mapValues: function (obj, mapper) {//需求：对对象的值进行某种运算得到新结果之后，让键映射到新的结果。详细笔记请见：1.12代码  //mapper函数负责实现你想对对象的值进行的某种运算
+    if (arguments.length == 1) {//如果只传了一个参，即没传mapper，直接把obj返回即可
+      return obj
     }
-    return result
+    if (typeof (mapper) != "function") {//如果mapper不是函数，而是一个key   
+      let keyInThisValue = mapper;//那就先把mapper的值赋值给一个变量，这里我将这个变量命名为keyInThisValue
+      mapper = function (objectAsValue) {//然后重新给mapper赋值，让mapper是个函数，函数的参数是个对象
+        return objectAsValue[keyInThisValue];//然后从参数这个对象里读取到keyInThisValue对应的值并返回
+      }
+    }
+    let result = {}
+    for (let key in obj) {
+      result[key] = mapper(obj[key]);
+    }
+    return result;
   }
 }
