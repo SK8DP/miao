@@ -46,7 +46,7 @@ var sk8dp = {
   flattenDeep: function (array) {//原理请见1.12代码
     return array.reduce((result, item) => {
       if (Array.isArray(item)) {//如果元素是数组
-        return result.concat(sk8dp["flattenDeep"](item))//原理：在上面讲flatten的“reduce改进版(融合了concat)”时已经详细解释过了，故不赘述！
+        return result.concat(sk8dp["flattenDeep"](item))//括号里写成sk8dp.flattenDeep(item)也可以，或者写成this.flattenDeep(item)也可以，或者也可以把开头那里的函数声明加个名字即写成flattenDeep:function flattenDeep(array)，然后这里就直接写flattenDeep(item)也可以。除此以外，还有一直更好的写法，请见视频1.17-NO1前半部分
       }
       return result.concat(item)//如果元素是非数组
     }, [])
