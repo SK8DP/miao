@@ -51,7 +51,7 @@ var sk8dp = {
       return result.concat(item)//如果元素是非数组
     }, [])
   },
-  flattenDepth: function (array, n = 1) {
+  flattenDepth: function (array, n = 1) {//原理请见1.12代码
     if (n == 0) {
       return array.slice()
     }
@@ -62,7 +62,7 @@ var sk8dp = {
       return result.concat(item)
     }, [])
   },
-  negate: function (predicate) { // 求一个函数的反函数，即原函数返回真时，创建出的函数返回假
+  negate: function (predicate) { // 求一个函数的反函数，即原函数返回真时，创建出的函数返回假  ////原理请见1.12代码
     return function (...args) {
       return !predicate(...args)
     }
