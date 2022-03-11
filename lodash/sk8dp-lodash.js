@@ -82,5 +82,16 @@ var sk8dp = {
       result[key] = mapper(obj[key]);
     }
     return result;
+  },
+  forOwn: function forOwn(obj, iterator) {//视频：1.19-NO2
+    var hasOwn = Object.prototype.hasOwnProperty;
+    for (var key in obj) {
+      if (hasOwn.call(obj, key)) {//你一定会问：这里为啥子不直接写if(obj.hasOwnProperty(key))呢？因为万一obj对象里恰好有一个属性也是叫hasOwnProperty,那这里就直接调用成obj对象里的hasOwnProperty了，然而我们是想调用Object.prototype里的hasOwnProperty，那这不就瞎了嘛，而通过我代码里的那种写法则可以完美避免这种情况。老谢在1.18-NO6里就已经讲过这种套路了。
+        if (iterator(obj[key], key) === false) {
+          break;
+        }
+      }
+    }
+    return obj;
   }
 }
