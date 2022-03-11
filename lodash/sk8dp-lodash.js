@@ -83,7 +83,7 @@ var sk8dp = {
     }
     return result;
   },
-  forOwn: function forOwn(obj, iterator) {//需求：遍历一个对象里的自有属性  //视频：1.19-NO2
+  forOwn: function forOwn(obj, iterator) {//需求：遍历一个对象里的自有属性并对每个属性做指定的事  //视频：1.19-NO2
     var hasOwn = Object.prototype.hasOwnProperty;
     for (var key in obj) {
       if (hasOwn.call(obj, key)) {//你一定会问：这里为啥子不直接写if(obj.hasOwnProperty(key))呢？因为万一obj对象里恰好有一个属性也是叫hasOwnProperty,那这里就直接调用成obj对象里的hasOwnProperty了，然而我们是想调用Object.prototype里的hasOwnProperty，那这不就瞎了嘛，而通过我代码里的那种写法则可以完美避免这种情况。老谢在1.18-NO6里就已经讲过这种套路了。
