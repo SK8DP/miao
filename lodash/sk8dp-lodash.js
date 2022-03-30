@@ -93,5 +93,35 @@ var sk8dp = {
       }
     }
     return obj;
+  },
+  identity: function (value) {
+    return value;
+  },
+  property: function (name) {
+    let keys = name.split('.');
+    return function (obj) {
+      let result = obj;
+      for (let key of keys) {
+        result = result[key];
+      }
+      return result;
+    }
+  },
+  intersection: function (array1, array2) {
+    return this.intersectionBy(array1, array2, it => it);
+  },
+  intersectionBy: function (array1, array2, iteratee = this.identity) {
+    let result = [];
+    if (typeof iteratee == 'string') {
+      iteratee = this.property(iteratee);
+    }
+    for (let item1 of array1) {
+      for (let item2 of array2) {
+        if (iteratee(item1) == iteratee(item2)) {
+          result.push(item1);
+        }
+      }
+    }
+    return result;
   }
 }
