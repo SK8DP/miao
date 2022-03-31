@@ -142,5 +142,10 @@ var sk8dp = {
   },
   unary: function (func) {
     return this.ary(func, 1);
+  },
+  spread: function (func) {
+    return function (ary) {
+      return func.apply(this, ary);
+    }
   }
 }
