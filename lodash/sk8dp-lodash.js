@@ -134,5 +134,13 @@ var sk8dp = {
       }
     }
     return result;
+  },
+  ary: function (func, n = func.length) {
+    return function (...args) {
+      return func.call(this, ...args.slice(0, n));
+    }
+  },
+  unary: function (func) {
+    return this.ary(func, 1);
   }
 }
