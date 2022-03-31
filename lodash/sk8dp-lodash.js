@@ -153,4 +153,16 @@ var sk8dp = {
       return func(...args.reverse())
     }
   },
+  memoize: function (func, resolver = it => it) {//resolver的默认值表示返回参数的第一个值
+    map = new Map();
+    return function (...args) {
+      var key = resolver(...args);
+      if (map.has(key)) {
+        return map.get(key);
+      }
+      var result = func(...args);
+      map.set(key, result);
+      return result;
+    }
+  }
 }
