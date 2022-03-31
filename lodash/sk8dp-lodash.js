@@ -147,5 +147,10 @@ var sk8dp = {
     return function (ary) {
       return func.apply(this, ary);
     }
-  }
+  },
+  flip: function (func) {
+    return function (...args) {
+      return func(...args.reverse())
+    }
+  },
 }
