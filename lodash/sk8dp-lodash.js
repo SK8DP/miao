@@ -180,10 +180,20 @@ var sk8dp = {
   curry: function (f, n = f.length) {
     return function (...args) {
       if (args.length < n) {
-        return this.curry(f.bind(null, ...args), n - args.length);
+        return sk8dp.curry(f.bind(null, ...args), n - args.length);
       } else { //这套else也相当于是递归的结束条件了
         return f(...args);
       }
+    }
+  },
+  matches: function (target) {
+    return function (obj) {
+      for (var key in target) {
+        if (obj[key] !== target[key]) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 }
