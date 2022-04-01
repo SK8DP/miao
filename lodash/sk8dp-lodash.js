@@ -164,5 +164,10 @@ var sk8dp = {
       map.set(key, result);
       return result;
     }
+  },
+  uniq: function (ary) { //复杂度：O(n)
+    set = new Set(ary);//通过集合去重
+    let result = Array.from(set);//将类数组对象set转成数组
+    return result;
   }
 }
