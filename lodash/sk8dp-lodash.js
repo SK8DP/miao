@@ -144,7 +144,7 @@ var sk8dp = {
     return this.ary(func, 1);
   },
   spread: function (func) {
-    return function (ary) {
+    return function (ary) { //等价于func.apply.bind(f,null)
       return func.apply(this, ary);
     }
   },
@@ -169,5 +169,21 @@ var sk8dp = {
     set = new Set(ary);//通过集合去重
     let result = Array.from(set);//将类数组对象set转成数组
     return result;
+  },
+  sum: function (ary) {
+    var sum = 0;
+    for (var i = 0; i < ary.length; i++) {
+      sum += ary[i];
+    }
+    return sum;
+  },
+  curry: function (f, n = f.length) {
+    return function (...args) {
+      if (args.length < n) {
+        return this.curry(f.bind(null, ...args), n - args.length);
+      } else { //这套else也相当于是递归的结束条件了
+        return f(...args);
+      }
+    }
   }
 }
