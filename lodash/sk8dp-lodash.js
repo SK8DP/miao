@@ -94,7 +94,7 @@ var sk8dp = {
     }
     return obj;
   },
-  identity: function (value) {
+  identity: function (value) {//工具函数：返回元素自己
     return value;
   },
   property: function (name) {
@@ -108,7 +108,7 @@ var sk8dp = {
     }
   },
   intersection: function (array1, array2) {
-    return this.intersectionBy(array1, array2, it => it);
+    return this.intersectionBy(array1, array2, it => it);//这里不传第三个参数也行，因为第三个参数的默认值就是identity函数，即：it=>it
   },
   intersectionBy: function (array1, array2, iteratee = this.identity) {
     let result = [];
@@ -180,7 +180,7 @@ var sk8dp = {
   curry: function (f, n = f.length) {
     return function (...args) {
       if (args.length < n) {
-        return sk8dp.curry(f.bind(null, ...args), n - args.length);
+        return this.curry(f.bind(null, ...args), n - args.length);
       } else { //这套else也相当于是递归的结束条件了
         return f(...args);
       }
