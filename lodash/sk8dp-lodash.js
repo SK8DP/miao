@@ -97,14 +97,9 @@ var sk8dp = {
   identity: function (value) {//工具函数：返回元素自己
     return value;
   },
-  property: function (name) {
-    let keys = name.split('.');
-    return function (obj) {
-      let result = obj;
-      for (let key of keys) {
-        result = result[key];
-      }
-      return result;
+  property: function (path) {//功能：接收一个路径path，然后返回一个函数，返回的这个函数的功能是：接收一个对象obj，然后返回这个obj对象的path路径对应的值  
+    return function (obj) { 
+      return this.get(obj, path);
     }
   },
   intersection: function (array1, array2) {
@@ -201,15 +196,15 @@ var sk8dp = {
       return path.split('[')
         .flatMap(it => it.split(']'))
         .flatMap(it => it.split('.'))
-        .filter(it => it);
+        .filter(it => it);//去掉空项
     }
     return path;
   },
-  get: function (obj, path, defaultValue = 'default') { //功能：读取obj对象的path路径对应的值
+  get: function (obj, path, defaultValue = undefined) { //功能：读取obj对象的path路径对应的值
     var names = this.toPath(path);
     for (var name of names) {
       obj = obj[name];
-      if (obj[name] == null) {
+      if (obj == null) {
         return defaultValue;
       }
     }
