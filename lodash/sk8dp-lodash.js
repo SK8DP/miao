@@ -195,5 +195,24 @@ var sk8dp = {
       }
       return true;
     }
+  },
+  toPath: function (path) { //把字符串形式的路径拆分成一项一项的并放进数组
+    if (typeof path == 'string') {
+      return path.split('[')
+        .flatMap(it => it.split(']'))
+        .flatMap(it => it.split('.'))
+        .filter(it => it);
+    }
+    return path;
+  },
+  get: function (obj, path, defaultValue = 'default') { //功能：读取obj对象的path路径对应的值
+    var names = this.toPath(path);
+    for (var name of names) {
+      obj = obj[name];
+      if (obj[name] == null) {
+        return defaultValue;
+      }
+    }
+    return obj;
   }
 }
