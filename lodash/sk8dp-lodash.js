@@ -181,7 +181,7 @@ var sk8dp = {
       }
     }
   },
-  matches: function (target) {
+  matches: function (target) {//功能：接收一个target对象，然后返回一个函数，返回的这个函数的功能是：接收一个obj对象，然后判断obj对象能否匹配上target对象（即：target里的键值对是否全部原样在obj里出现）
     return function (obj) {
       for (var key in target) {
         if (obj[key] !== target[key]) {
@@ -221,5 +221,44 @@ var sk8dp = {
       }
     }
     return true;
+  },
+  isEqual: function (a, b) { //功能：深度对比  //原版代码及详细讲解请见“1.4代码.html”里的deepEqual()函数。
+    if (a === b) {
+      return true
+    }
+    if (a !== a && b !== b) {
+      return true
+    }
+    if (Array.isArray(a) && Array.isArray(b)) {
+      if (a.length !== b.length) {
+        return false
+      } else {
+        for (var i = 0; i < a.length; i++) {
+          if (!sk8dp["isEqual"](a[i], b[i])) {
+            return false
+          }
+        }
+        return true
+      }
+    }
+    if (!Array.isArray(a) && !Array.isArray(b) && typeof a === 'object' && typeof b === 'object') {
+      for (var key in a) {
+        if (!(key in b)) {
+          return false
+        }
+      }
+      for (var key in b) {
+        if (!(key in a)) {
+          return false
+        }
+      }
+      for (var key in a) {
+        if (!sk8dp["isEqual"](a[key], b[key])) {
+          return false
+        }
+      }
+      return true
+    }
+    return false 
   }
 }
