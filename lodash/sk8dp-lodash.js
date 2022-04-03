@@ -99,7 +99,7 @@ var sk8dp = {
   },
   property: function (path) {//功能：接收一个路径path，然后返回一个函数，返回的这个函数的功能是：接收一个对象obj，然后返回这个obj对象的path路径对应的值  
     return function (obj) { 
-      return this.get(obj, path);
+      return sk8dp.get(obj, path);//这里的sk8dp不能写成this，否则会报错，因为这里的返回值是另外一个函数，如果在外面单独调用返回的这个函数，里面的this就是window了、而不是sk8dp了，那么此时this当然就调不到get方法了，就会报错了。
     }
   },
   intersection: function (array1, array2) {
@@ -175,7 +175,7 @@ var sk8dp = {
   curry: function (f, n = f.length) {
     return function (...args) {
       if (args.length < n) {
-        return this.curry(f.bind(null, ...args), n - args.length);
+        return sk8dp.curry(f.bind(null, ...args), n - args.length);
       } else { //这套else也相当于是递归的结束条件了
         return f(...args);
       }
@@ -209,5 +209,17 @@ var sk8dp = {
       }
     }
     return obj;
+  },
+  isMatch: function (obj, src) { //功能：参数里的obj和src都是对象，判断obj对象能否匹配上src对象（即：src里的键值对是否全部原样在obj里出现）
+    for (var key in src) {
+      if (src[key] && typeof src[key] === 'object') {
+        return this.isMatch(obj[key], src[key])
+      } else {
+        if (src[key] !== obj[key]) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
