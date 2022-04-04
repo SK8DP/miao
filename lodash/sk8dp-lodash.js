@@ -130,25 +130,25 @@ var sk8dp = {
     }
     return result;
   },
-  ary: function (func, n = func.length) {
+  ary: function (func, n = func.length) {//功能：让函数func最多只能接n个参数
     return function (...args) {
       return func.call(this, ...args.slice(0, n));
     }
   },
-  unary: function (func) {
+  unary: function (func) {//功能：让函数func最多只能接1个参数
     return this.ary(func, 1);
   },
-  spread: function (func) {
+  spread: function (func) { //功能：接收个func函数，返回个函数，返回的函数的功能是：接收一个数组，然后将数组展开后传给func函数
     return function (ary) { //等价于func.apply.bind(f,null)
       return func.apply(this, ary);
     }
   },
-  flip: function (func) {
+  flip: function (func) {//功能：接收个func函数，返回个函数，返回的函数的功能是：将接受到的参数倒着传给func函数
     return function (...args) {
       return func(...args.reverse())
     }
   },
-  memoize: function (func, resolver = it => it) {//resolver的默认值it=>it表示返回参数的第一个值
+  memoize: function (func, resolver = it => it) {//功能：实现记忆化。即：在函数进行运算之前先看一下之前是否曾计算过，如果已经计算过了，就不重新算了，直接采用之前的结果。//resolver的功能是将func的参数们计算成一个值，这样便于往map里记 //resolver的默认值it=>it表示返回参数的第一个值
     map = new Map();
     return function (...args) {
       var key = resolver(...args);
@@ -160,7 +160,7 @@ var sk8dp = {
       return result;
     }
   },
-  uniq: function (ary) { //复杂度：O(n)
+  uniq: function (ary) {//功能：数组去重 //复杂度：O(n)  
     set = new Set(ary);//通过集合去重
     let result = Array.from(set);//将类数组对象set转成数组
     return result;
