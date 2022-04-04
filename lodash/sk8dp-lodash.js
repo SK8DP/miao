@@ -160,7 +160,7 @@ var sk8dp = {
       return result;
     }
   },
-  uniq: function (ary) {//功能：数组去重 //复杂度：O(n)  
+  uniq: function (ary) {//功能：数组去重 //复杂度：O(n)，因为使用了集合，所以复杂度是O(n)，如果不借助集合，那么复杂度最快也只能是O(n^2)，绝不可能到达O(n)  
     set = new Set(ary);//通过集合去重
     let result = Array.from(set);//将类数组对象set转成数组
     return result;
