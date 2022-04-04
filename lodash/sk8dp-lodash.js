@@ -97,7 +97,7 @@ var sk8dp = {
   identity: function (value) {//工具函数：返回元素自己
     return value;
   },
-  property: function (path) {//功能：接收一个路径path，然后返回一个函数，返回的这个函数的功能是：接收一个对象obj，然后返回这个obj对象的path路径对应的值  
+  property: function (path) {//工具函数 //功能：接收一个路径path，然后返回一个函数，返回的这个函数的功能是：接收一个对象obj，然后返回这个obj对象的path路径对应的值  
     return function (obj) { 
       return sk8dp.get(obj, path);//这里的sk8dp不能写成this，否则会报错，因为这里的返回值是另外一个函数，如果在外面单独调用返回的这个函数，里面的this就是window了、而不是sk8dp了，那么此时this当然就调不到get方法了，就会报错了。
     }
@@ -148,7 +148,7 @@ var sk8dp = {
       return func(...args.reverse())
     }
   },
-  memoize: function (func, resolver = it => it) {//resolver的默认值表示返回参数的第一个值
+  memoize: function (func, resolver = it => it) {//resolver的默认值it=>it表示返回参数的第一个值
     map = new Map();
     return function (...args) {
       var key = resolver(...args);
@@ -181,7 +181,7 @@ var sk8dp = {
       }
     }
   },
-  matches: function (target) {//功能：接收一个target对象，然后返回一个函数，返回的这个函数的功能是：接收一个obj对象，然后判断obj对象能否匹配上target对象（即：target里的键值对是否全部原样在obj里出现）
+  matches: function (target) {//工具函数 //功能：接收一个target对象，然后返回一个函数，返回的这个函数的功能是：接收一个obj对象，然后判断obj对象能否匹配上target对象（即：target里的键值对是否全部原样在obj里出现）
     return function (obj) {
       for (var key in target) {
         if (obj[key] !== target[key]) {
@@ -191,7 +191,7 @@ var sk8dp = {
       return true;
     }
   },
-  toPath: function (path) { //把字符串形式的路径拆分成一项一项的并放进数组
+  toPath: function (path) {//工具函数 //把字符串形式的路径拆分成一项一项的并放进数组
     if (typeof path == 'string') {
       return path.split('[')
         .flatMap(it => it.split(']'))
@@ -200,7 +200,7 @@ var sk8dp = {
     }
     return path;
   },
-  get: function (obj, path, defaultValue = undefined) { //功能：读取obj对象的path路径对应的值
+  get: function (obj, path, defaultValue = undefined) {//工具函数  //功能：读取obj对象的path路径对应的值
     var names = this.toPath(path);
     for (var name of names) {
       obj = obj[name];
@@ -260,5 +260,43 @@ var sk8dp = {
       return true
     }
     return false 
+  },
+  matchesProperty: function (path, val) {//工具函数 //功能：接收一个path路径和val值，然后返回一个函数，返回的函数的功能是：接收一个obj对象，然后判断obj对象的path路径对应的值和val值是否深度相同
+    return function (obj) {
+      return sk8dp.isEqual(sk8dp.get(obj, path), val);
+    }
+  },
+  iteratee: function (predicate) {//工具函数 //功能：接收一个任何格式的谓词函数，根据这个谓词函数的格式的不同将其传给不同的相关函数进而再将之转化成函数格式的谓词函数
+    if (typeof predicate === 'string') {
+      predicate = this.property(predicate);
+    }
+    if (Array.isArray(predicate)) {
+      predicate = this.matchesProperty(...predicate);
+    }
+    if (predicate && typeof predicate === 'object') {
+      predicate = matches(predicate);
+    }
+    return predicate;
+  },
+  filter: function (ary, predicate) {
+    predicate = this.iteratee(predicate);
+    var result = [];
+    for (var i = 0; i < ary.length; i++) {
+      if (predicate(ary[i])) {
+        result.push(ary[i]);
+      }
+    }
+    return result;
+  },
+  findkey: function (obj, predicate) { //功能：返回obj对象里第一个满足predicate要求的值对应的key
+    predicate = this.iteratee(predicate);
+    var result;
+    for (var key in obj) {
+      if (predicate(obj[key])) {
+        result = key;
+        break;
+      }
+    }
+    return result;
   }
 }
