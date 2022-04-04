@@ -274,7 +274,7 @@ var sk8dp = {
       predicate = this.matchesProperty(...predicate);
     }
     if (predicate && typeof predicate === 'object') {
-      predicate = matches(predicate);
+      predicate = this.matches(predicate);
     }
     return predicate;
   },
