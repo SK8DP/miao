@@ -172,7 +172,7 @@ var sk8dp = {
     }
     return sum;
   },
-  curry: function (f, n = f.length) {
+  curry: function (f, n = f.length) {//功能：返回个函数，返回的函数的功能是：接收参数，如果接收够了n个参数，就将参数传给f函数执行，如果没有接收够n个参数，就继续返回个函数来接收参数，直到总共接收够n个参数为止，然后自动将这n个传给f函数。
     return function (...args) {
       if (args.length < n) {
         return sk8dp.curry(f.bind(null, ...args), n - args.length);
