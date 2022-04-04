@@ -288,7 +288,7 @@ var sk8dp = {
     }
     return result;
   },
-  findkey: function (obj, predicate) { //功能：返回obj对象里第一个满足predicate要求的值对应的key
+  findKey: function (obj, predicate) { //功能：返回obj对象里第一个满足predicate要求的值对应的key
     predicate = this.iteratee(predicate);
     var result;
     for (var key in obj) {
