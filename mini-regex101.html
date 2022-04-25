@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/balloon-css@1.0.0/balloon.min.css">
+  <title>Mini Regex 101</title>
+  <style>
+    strong:nth-child(odd) {
+      background-color: #d5ebff;
+    }
+
+    strong:nth-child(even) {
+      background-color: #9FCFFF;
+    }
+
+    em {
+      font-style: normal;
+    }
+
+    em:nth-child(1) {
+      background-color: #c4e8ac;
+    }
+
+    em:nth-child(2) {
+      background-color: #f6d7a6;
+    }
+
+    em:nth-child(3) {
+      background-color: #c8c8ff;
+    }
+
+    em:nth-child(4) {
+      background-color: #f2cfff;
+    }
+
+    em:nth-child(5) {
+      background-color: #ffc5bf;
+    }
+
+    em:nth-child(6) {
+      background-color: #c8e7d6;
+    }
+
+    strong:empty {
+      display: inline-block;
+      width: 2px;
+      margin-left: -1px;
+      margin-right: -1px;
+      height: 1.3em;
+      vertical-align: bottom;
+      background-color: red;
+    }
+
+    #string {
+      width: 400px;
+      position: relative;
+    }
+
+    textarea, pre {
+      position: absolute;
+      top: 0;
+      margin: 0;
+      width: 100%;
+      height: 150px;
+      font-size: 24px;
+      font-family: consolas;
+      padding: 10px;
+      border: 1px solid;
+      overflow: auto;
+      background-color: transparent;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      line-height: 1.5;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div>REGULAR EXPRESSION</div>
+  <input type="text" id="reInput" value="f.(.)(.)" oninput="run()">
+  <div>
+    <label>g<input type="checkbox" checked id="reFlagGlobal"></label>
+    <label>m<input type="checkbox" id="reFlagMultiline"></label>
+    <label>i<input type="checkbox" id="reFlagIgnorecase"></label>
+  </div>
+  <div>TEST STRING</div>
+  <div id="string">
+    <pre contenteditable id="resultShow"></pre>
+    <textarea onscroll="scrollSync()" spellcheck="false" id="testStringInput" cols="30" rows="5" oninput="run()">asflws lfkjow efjlj woief</textarea>
+  </div>
+
+  <script>
+    function run() {
+      var reStr = reInput.value
+      var flags = getFlags()
+      var testString = testStringInput.value
+      if (reStr.length == 0) {
+        resultShow.innerHTML = testString + '\n'
+        return
+      }
+      try {
+        var re = new RegExp(reStr, flags + 'd')
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          resultShow.innerHTML = testString + '\n'
+          return
+        } else {
+          throw e
+        }
+      }
+
+      var resultHTML = ''
+      var startIdx = 0
+      var match
+      var matchCount = 0
+
+      var start = Date.now()
+
+      while (match = re.exec(testString)) {
+        matchCount++
+        resultHTML += testString.slice(startIdx, match.index)
+        resultHTML += `<strong title="Match${matchCount}\nPos:${match.index}-${match.index + match[0].length}">` + highlightGroups(match, matchCount) + '</strong>'
+        startIdx = re.lastIndex
+        if (match[0] == '') {
+          re.lastIndex++
+        }
+        if (!re.global) {
+          startIdx = match.index + match[0].length
+          break
+        }
+      }
+      var end = Date.now()
+      var time = end - start
+      resultHTML += testString.slice(startIdx)
+      resultShow.innerHTML = resultHTML + '\n'
+    }
+    run()
+
+    function scrollSync() {
+      resultShow.scrollTop = testStringInput.scrollTop
+    }
+
+
+    function getFlags() {
+      var flags = ''
+      if (reFlagGlobal.checked) {
+        flags += 'g'
+      }
+      if (reFlagMultiline.checked) {
+        flags += 'm'
+      }
+      if (reFlagIgnorecase.checked) {
+        flags += 'i'
+      }
+      return flags
+    }
+
+    function highlightGroups(match, matchIndex) {
+      var result = ''
+      var matchString = match[0]
+      var groupRanges = match.indices.map(range => {
+        var start = range[0]
+        var end = range[1]
+        return [start - match.index, end - match.index]
+      })
+
+      groupRanges.shift()
+
+      var startIdx = 0
+      var count = 1
+      for(var range of groupRanges) {
+        result += matchString.slice(startIdx, range[0])
+        result += `<em title="Match ${matchIndex}\nGroup${count++}\nPos: ${range[0]}-${range[1]}">` + matchString.slice(range[0], range[1]) + '</em>'
+        startIdx = range[1]
+      }
+      result += matchString.slice(startIdx)
+      return result
+    }
+  </script>
+</body>
+
+</html>
