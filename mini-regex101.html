@@ -76,6 +76,16 @@
       line-height: 1.5;
     }
 
+    em:hover {
+      box-shadow: 0 0 2px black;
+      position: relative;
+      z-index: 8;
+    }
+
+    em:hover em {
+      background-color: transparent !important;
+    }
+
   </style>
 </head>
 
@@ -159,7 +169,7 @@
       return flags
     }
 
-    function highlightGroups(match, matchIndex) {
+    function highlightGroups2(match, matchIndex) {
       var result = ''
       var matchString = match[0]
       var groupRanges = match.indices.map(range => {
@@ -180,6 +190,48 @@
       result += matchString.slice(startIdx)
       return result
     }
+
+    function highlightGroups(match, matchIndex) {
+        // var groupColors = [
+        //   '#c4e8ac',
+        //   '#f6d7a6',
+        //   '#c8c8ff',
+        //   '#f2cfff',
+        //   '#ffc5bf',
+        //   '#c8e7d6',
+        // ]
+        var matchString = match[0]
+
+        var groupRanges = match.indices.map(range => {
+          var start = range[0]
+          var end = range[1]
+          return [start - match.index, end - match.index]
+        }) // 每个捕获在匹配到的字符串中的下标范围
+
+        groupRanges.shift() // 删掉第一项
+
+        var matchChars = match[0].split('')
+
+        var tags = new Array(match[0].length + 1).fill('')
+
+        var idx = 0
+        for (var range of groupRanges) {
+          idx++
+          var start = range[0]
+          var end = range[1]
+
+          tags[start] += `<em title="Group: ${idx}\nPos: ${start + match.index}-${end + match.index}">`
+          tags[end] += '</em>'
+        }
+
+        var result = ''
+        for (var i = 0; i < matchChars.length; i++) {
+          result += tags[i] + matchChars[i]
+        }
+        result += tags[i]
+
+        return result
+      }
   </script>
 </body>
 
