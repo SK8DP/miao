@@ -83,7 +83,7 @@
     }
 
     em:hover em {
-      background-color: transparent !important;
+      background-color: transparent !important; /*因为由本项目的highlightGroups()函数可知em的背景颜色是通过内联样式设置的，优先级很高，所以这里要加“!important”才能比内联样式的优先级更高，否则就镇不住*/
     }
 
   </style>
@@ -93,30 +93,30 @@
   <div>REGULAR EXPRESSION</div>
   <input type="text" id="reInput" value="f.(.)(.)" oninput="run()">
   <div>
-    <label>g<input type="checkbox" checked id="reFlagGlobal"></label>
-    <label>m<input type="checkbox" id="reFlagMultiline"></label>
-    <label>i<input type="checkbox" id="reFlagIgnorecase"></label>
+    <label>g<input onclick="run()" type="checkbox" checked id="reFlagGlobal"></label>
+    <label>m<input onclick="run()" type="checkbox" id="reFlagMultiline"></label>
+    <label>i<input onclick="run()" type="checkbox" id="reFlagIgnorecase"></label>
   </div>
   <div>TEST STRING</div>
   <div id="string">
-    <pre contenteditable id="resultShow"></pre>
-    <textarea onscroll="scrollSync()" spellcheck="false" id="testStringInput" cols="30" rows="5" oninput="run()">asflws lfkjow efjlj woief</textarea>
+    <pre contenteditable id="testStringInput" oninput="run()">asflws lfkjow efjlj woief</pre>
+    <!-- <textarea onscroll="scrollSync()" spellcheck="false" id="testStringInput" cols="30" rows="5" oninput="run()">asflws lfkjow efjlj woief</textarea> -->
   </div>
 
   <script>
     function run() {
       var reStr = reInput.value
       var flags = getFlags()
-      var testString = testStringInput.value
+      var testString = testStringInput.textContent
       if (reStr.length == 0) {
-        resultShow.innerHTML = testString + '\n'
+        testStringInput.innerHTML = testString + '\n'
         return
       }
       try {
         var re = new RegExp(reStr, flags + 'd')
       } catch (e) {
         if (e instanceof SyntaxError) {
-          resultShow.innerHTML = testString + '\n'
+          testStringInput.innerHTML = testString + '\n'
           return
         } else {
           throw e
@@ -146,11 +146,11 @@
       var end = Date.now()
       var time = end - start
       resultHTML += testString.slice(startIdx)
-      resultShow.innerHTML = resultHTML + '\n'
+      testStringInput.innerHTML = resultHTML + '\n'
     }
     run()
 
-    function scrollSync() {
+    function scrollSync() {//此函数作废
       resultShow.scrollTop = testStringInput.scrollTop
     }
 
@@ -169,7 +169,7 @@
       return flags
     }
 
-    function highlightGroups2(match, matchIndex) {
+    function highlightGroups2(match, matchIndex) {//此函数作废
       var result = ''
       var matchString = match[0]
       var groupRanges = match.indices.map(range => {
@@ -192,14 +192,14 @@
     }
 
     function highlightGroups(match, matchIndex) {
-        // var groupColors = [
-        //   '#c4e8ac',
-        //   '#f6d7a6',
-        //   '#c8c8ff',
-        //   '#f2cfff',
-        //   '#ffc5bf',
-        //   '#c8e7d6',
-        // ]
+        var groupColors = [
+          '#c4e8ac',
+          '#f6d7a6',
+          '#c8c8ff',
+          '#f2cfff',
+          '#ffc5bf',
+          '#c8e7d6',
+        ]
         var matchString = match[0]
 
         var groupRanges = match.indices.map(range => {
@@ -220,7 +220,7 @@
           var start = range[0]
           var end = range[1]
 
-          tags[start] += `<em title="Group: ${idx}\nPos: ${start + match.index}-${end + match.index}">`
+          tags[start] += `<em style="background-color:${groupColors[idx - 1]}" title="Group: ${idx}\nPos: ${start + match.index}-${end + match.index}">`
           tags[end] += '</em>'
         }
 
