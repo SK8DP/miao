@@ -1,0 +1,830 @@
+<style>
+  svg {
+    border: 2px solid black;
+  }
+</style>
+Regular Expression:
+<input type="text" id="regInput" oninput="draw()" style="width: 500px;"> <button onclick="draw()">绘制铁路图</button>
+<!-- 输入框和按钮 -->
+
+<svg width="5000px" height="5000px"></svg><!-- 弄了个巨大的svg空间  -->
+<script>
+  function draw() {//功能：将输入的正则表达式画成铁路图
+    var svg = document.querySelector('svg')
+    svg.innerHTML = ''//先清空svg以准备接下来的绘制
+    var re = regInput.value//拿到输入的正则表达式 //注意：这里的写法是直接通过id来获取dom元素，而不用通过document.getElementById('regInput')获取元素这么麻烦。我在“JS笔记1.21之后胡逼版.doc”里讲过这个知识点。
+    try {
+      new RegExp(re)//用re去new一个正则表达式对象，如果没报错，说明re是语法正确的正则表达式，那么就继续执行后续的那几行代码；如果报错了，那就说明re作为正则表达式存在语法错误，那还玩个鸡巴，之后的那几句代码直接不执行了，直接走catch分支
+      var tree = parseRegularExpression(re)//将正则表达式解析成语法树
+      var graph = createRegularExpressionGraph(tree)//将语法树画成铁路图
+      svg.setAttribute('width', graph.width + 'px')//让svg空间的大小随着铁路图的大小而灵活改变
+      svg.setAttribute('height', graph.height + 'px')//让svg空间的大小随着铁路图的大小而灵活改变
+    } catch {//进入这个分支说明你输入的正则表达式存在错误
+      svg.innerHTML = ''//将错误的正则表达式画出的svg内容清空
+      console.log('err')
+    }
+  }
+
+
+
+  //据我分析，本项目也用到了“2.21代码json-parser.html”里讲的“递归下降”的思想
+
+  var str = '\\d\\n\\w\\s(foo|bar)(?:foo)|((?<=foo)|(?<!foo)(?<name>...))'
+  var i = 0
+
+  function parseOnePart() {
+    if (str[i] == '[') {//解析字符组合
+      return parseCharacterClass()
+    }
+    if (str[i] == '(') {//解析捕获分组
+      return parseCaptureGroup()
+    }
+    if (str[i] == '\\') {//解析转义符 //如果你问我这里为啥是\\而不是\，那只能说明你连转义符的基础知识都没掌握，操他妈的。 //超级讲解：在本项目中，str里的转义符的“ \ ”必须写成“ \\ ”，因为计算机认为字符串里的“ \\ ”是1个字符并将其理解成是'\'符、，而字符串里的“ \ ”并不是个独立的字符，“ \ ”只能和其右边的字符合为一个转义，那么如果你把本项目的str里的转义符的“ \\ ”写成“ \ ”，“ \ ”就会和其右边的字符融为一体，那么读取的时候根本读不到“ \ ”，那本项目就没法捕获到转义符并进行解析了，更何况本项目的parseEscape()函数还要用slice()方法来从str里提取内容赋给node.raw，同样也提取不到你写在str里的' / '。比如：'fu\ck'[2]的结果是'c'而不是'\'，而'fu\\ck'[2]的结果是'\\'； 'fu\ck'.slice(2)的结果是'ck'而不是'\ck'，而'fu\\ck'.slice(2)的结果是'\\ck'； console.log('fu\ck')的结果是'fuck'而不是''fu\ck'，而console.log('fu\\ck')的结果是'fu\ck'。我认为console.log('fu\ck')和console.log('fu\\ck')的结果就是计算机的认知结果，即：计算机会把字符串里的'\\'认为是'\'，而把字符串里的'\'和其右边的字符合为一个转义符，假如其右边是n，那么'\n'当然就被计算机理解成是回车，假如其右边是w，那么'\w'没有特殊的含义，所以'\w'还会被计算机理解成是w本身。这也就解释了document.write('<span>\\w</span>')最终在页面上呈现出来的效果是\w而不是\\w，这是因为计算机在解析括号里的字符串'<span>\\w</span>'时就已经把'\\'解析成了'\'，那么解析完成之后\\w当然也就变成了\w。
+      return parseEscape()
+    }
+    if (str[i] == '?' || str[i] == '+' || str[i] == '*' || str[i] == '{') {//解析量词符
+      return parseQuantifier()
+    }
+    return parseCharacter()//解析普通字符
+  }
+
+  function parseCharacter() {
+    if (str[i] == '\\') {//万一在解析字符的时候遇到了'\\'，说明遇到了转义符，那么就交给parseEscape()去办  //这套if主要是为了处理在字符组合里出现转义的情况，形如[\\c]
+      return parseEscape()
+    }
+    var node = {
+      type: 'Character',
+      start: i,
+      end: i + 1,
+      raw: str.slice(i, i + 1),
+      value: str[i]
+    }
+    i++//跳过当前字符，为处理下一个做准备
+    return node
+  }
+
+  function parseCharacterClass() {
+    var node = {
+      type: 'CharacterClass',
+      start: i,
+      end: 0,
+      raw: '',
+      revert: false,
+      elements: [],
+    }
+    i++//跳过‘[’
+    if (str[i] == '^') {//字符组合里遇到了^，当然就是表示取反了
+      node.revert = true
+      i++//跳过‘^’
+    }
+    while (str[i] !== ']' && i < str.length) {//这里while后面的括号里必须写&& i < str.length，否则如果你只输入了“[”而没输入“]”，这个循环就会陷入死循环
+      var character = parseCharacter()
+      if (str[i] == '-') {//如果在字符组合里遇到了范围符
+        i++//跳过范围符，看范围符的下一个符号
+        if (str[i] == ']') {//如果是形如[6-]这种范围符后无字符的情况，那么范围符就不表示范围符了，而是一个普通的字符
+          node.elements.push(character)
+          i--//执行这步之前，i指向‘]’，通过i--，i就又重新指回了范围符
+          var character = parseCharacter()
+          node.elements.push(character)
+        } else {//如果是形如[5-8]这种正确的范围符使用情形，那么“5-8”就不能按普通字符解析了，得专门给它弄个结点存之
+          var character2 = parseCharacter()
+          var rangeNode = {
+            type: 'CharacterRange',
+            start: character.start,
+            end: character2.end,
+            raw: str.slice(character.start, character2.end),
+            startCharacter: character,
+            endCharacter: character2,
+          }
+          node.elements.push(rangeNode)
+        }
+      } else {//如果在字符组合里没有遇到范围符，那么就将里面的字符按照普通字符来解析
+        node.elements.push(character)
+      }
+    }
+    if (str[i] == ']') {
+      i++//跳过“]
+    } else {
+      throw new SyntaxError('Character Class without ]')//如果str[i]不是“]”，说明你输入的这个正则表达式不正确，那么也就没必要再返回语法树了，所以这里直接抛出个错误终结之。
+    }
+    node.end = i
+    node.raw = str.slice(node.start, node.end)
+    return node
+  }
+
+  function parseQuantifier() {
+    var node = {
+      type: 'Quantifier',
+      start: i,
+      end: 0,
+      raw: '',
+      element: null,//注意：这里的属性名是叫element而不是elements哦，因为由相关概念易知量词符只能针对1个元素去弄
+      min: 0,
+      max: Infinity,
+      greedy: true,
+    }
+    if (str[i] == '?') {
+      node.max = 1
+      i++//跳过‘ ? ’
+    } else if (str[i] == '+') {
+      node.min = 1
+      i++//跳过‘ + ’
+    } else if (str[i] == '*') {
+      i++//node的min和max的默认值就是‘ * ’应该是的状态，所以此时啥子都不用做了，只通过i++跳过‘ * ’即可
+    } else {//即：当str[i]=='{'时， 即：接下来处理{a,b}这种类型的量词符
+      i++//跳过“{”
+      skipSpace()//空格无效，跳过空格
+      node.min = parseInteger()
+      skipSpace()
+      if (str[i] == '}') {//比如{8}这种情况，说明此时只能是8，那肯定是max和min都是8啊
+        node.max = node.min
+        i++//跳过“}”
+      } else if (str[i] == ',') {
+        i++//跳过逗号
+        skipSpace()
+        if (str[i] == '}') {//比如{8,}这种情况，表示8到正无穷次，
+          i++//因为node.min刚才已经设置过了，node.max默认的也是我们想要的Infinity，那现在啥子都不用做了，只通过i++跳过“}”即可
+        } else {//比如{3,8}这种情况
+          node.max = parseInteger()
+          skipSpace()
+          i++//跳过“}”
+        }
+      }
+    }
+
+    if (str[i] == '?') {//如果遇到了表示非贪婪匹配的那个问号
+      node.greedy = false
+      i++//跳过问号
+    }
+
+    node.end = i
+    node.raw = str.slice(node.start, node.end)
+    return node
+  }
+
+  function skipSpace() {
+    while (str[i] == ' ') {
+      i++
+    }
+  }
+
+  function parseInteger() {
+    var numStr = ''
+    while (str[i] >= '0' && str[i] <= 9) {
+      numStr += str[i]
+      i++
+    }
+    return parseInt(numStr)
+  }
+
+  function parseBranch() {//功能：解析分支  //任何正则表达式，无论是单个字符还是一长串的各种元素，只要没遇到“|”、“)”，那这就是一组完整的分支，当遇到了“|”、“)”，则标志着分支的结束
+    var node = {
+      type: 'Branch',
+      start: i,
+      end: 0,
+      raw: '',
+      elements: [],
+    }
+
+    while (str[i] !== '|' && str[i] !== ')' && i < str.length) {
+      var part = parseOnePart()
+      if (part.type == 'Quantifier') {//当遇到了量词符，易知你得拿出量词符前的一个元素放进量词符的element里，进而将该元素和量词符弄成一组  //这套if如果理解困难，可以先忽略掉这套if，然后就能理解整体思想了，然后再把这套if加进去进行理解
+        part.element = node.elements.pop()//拿出量词符前的一个元素放进量词符的element里
+        part.start = part.element.start//量词符前的那个元素的start当然就是整组量词符元素的start
+        part.raw = str.slice(part.start, part.end)
+      }
+      node.elements.push(part)
+    }
+    node.end = i
+    node.raw = str.slice(node.start, node.end)
+    return node
+  }
+
+  function parseBranches() {//功能：解析用|分隔的连续几组分支  //由本项目思想可知，parseBranches()理论上可以用来解析任何正则表达式
+    var nodes = []
+    while (true) {
+      var branch = parseBranch()
+      nodes.push(branch)
+      if (str[i] == '|') {
+        i++
+        continue
+      }
+      if (str[i] == ')' || i >= str.length) {
+        break//这里没有用i++跳过")"是因为在parseCaptureGroup()会用i++跳过这里的这个")"
+      }
+    }
+    return nodes //parseBranches()返回的是个数组而不是结点，千万注意
+  }
+
+
+  // 捕获分组情况总览：
+  // (foo|bar) 常规捕获分组
+  // (?:foo) 非捕获分组
+  // (?=foo) 正预测先行断言
+  // (?!foo) 负预测先行断言
+  // (?<=foo) 正回顾后发断言
+  // (?<!foo) 负回顾后发断言
+  // (?<name>foo) 具名分组
+  var groupIndex = 1
+  function parseCaptureGroup() {//功能：解析捕获分组（即：解析用小括号包住的玩意儿）
+    var node = {
+      type: 'CaptureGroup',
+      start: i,
+      end: 0,
+      raw: '',
+      branches: null,
+      index: 0, // 分组的编号
+      name: '', // 分组的名称
+      assertion: false, // 是否是零宽断言
+      lookahead: true, // 预测断言，反之则是回顾断言
+      positive: true, //  断言类型，正断言还是反断言
+    }
+    i++//跳过“(”
+    if (str[i] == '?') {//这一大套if将用于处理“ 形如(?:foo)的非捕获分组、形如(?=foo)的正预测先行断言、形如(?!foo)的负预测先行断言、形如(?<=foo)的正回顾后发断言、形如(?<!foo)的负回顾后发断言、形如(?<name>foo)的具名分组 ”这六大情况。
+      i++//跳过“?”
+      if (str[i] == ':') {//这套if用于处理： (?:foo)非捕获分组
+        i++//因为非捕获分组无法被捕获，所以啥子都不用做了，直接i++跳过“:”即可
+      } else if (str[i] == '=') {//这套if用于处理： (?=foo)正预测先行断言
+        node.assertion = true
+        node.lookahead = true
+        node.positive = true
+        i++//跳过“=”
+      } else if (str[i] == '!') {//这套if用于处理： (?!foo)负预测先行断言
+        node.assertion = true
+        node.lookahead = true
+        node.positive = false
+        i++//跳过“!”
+      } else if (str[i] == '<') {//这一大套if将用于处理：“ 形如(?<=foo)的正回顾后发断言、形如(?<!foo)的负回顾后发断言、形如(?<name>foo)的具名分组 ”这三大情况
+        i++//跳过“<”
+        if (str[i] == '=') {//这套if用于处理： (?<=foo)正回顾后发断言
+          node.assertion = true
+          node.lookahead = false
+          node.positive = true
+          i++//跳过“=”
+        } else if (str[i] == '!') {//这套if用于处理： (?<!foo)负回顾后发断言
+          node.assertion = true
+          node.lookahead = false
+          node.positive = false
+          i++//跳过“!”
+        } else {//这套else用于处理： (?<name>foo)具名分组
+          node.name = parseGroupName()//解析具名分组的组名
+          node.index = groupIndex++//因为具名分组的这套else语句和最最外层的那套else是互斥的，即：如果进了这套else就进不了最最外层的那套else了，那么就无法执行那套else里的“ node.index = groupIndex++ ”了，而由相关知识可知具名分组也得有分组编号，所以这里也得专门给这套else来一句“ node.index = groupIndex++ ”   //你肯定会问，为啥只有具名分组和常规捕获分组要设置index属性值、而“ 非捕获分组、正预测先行断言、负预测先行断言、正回顾后发断言、后回顾后发断言 ”却不设置index属性值呢？傻逼，这几种情况捕获的是位置、而不是具体内容啊(如果不懂请去复习“非捕获分组”和“断言”的相关知识)，既然捕获不到具体的内容，那当然不能为之设置分组编号index了，而具名分组和常规捕获分组是实实在在能捕获到具体内容的，所以当然要为之设置分组编号index了(如果不懂请去复习“具名分组”和“捕获分组”的相关知识)
+          i++//跳过“>”
+        }
+      }
+    } else {//这套else用于处理：形如(foo|bar)的常规捕获分组
+      node.index = groupIndex++ //记录分组编号   //你肯定会问，为啥只有具名分组和常规捕获分组要设置index属性值、而“ 非捕获分组、正预测先行断言、负预测先行断言、正回顾后发断言、后回顾后发断言 ”却不设置index属性值呢？傻逼，这几种情况捕获的是位置、而不是具体内容啊(如果不懂请去复习“非捕获分组”和“断言”的相关知识)，既然捕获不到具体的内容，那当然不能为之设置分组编号index了，而具名分组和常规捕获分组是实实在在能捕获到具体内容的，所以当然要为之设置分组编号index了(如果不懂请去复习“具名分组”和“捕获分组”的相关知识)
+    }
+
+    node.branches = parseBranches()//小括号里的真正内容部分当然要当做分支来解析
+    i++  //跳过“)”
+    node.end = i
+    node.raw = str.slice(node.start, node.end)
+    return node
+  }
+
+  function parseGroupName() {//功能：解析具名分组的组名
+    var name = ''
+    while (str[i] !== '>') {
+      name += str[i]
+      i++
+    }
+    return name
+  }
+
+  function parseEscape() {
+    var node = {
+      type: 'Escape',
+      start: i,
+      end: 0,
+      raw: '',
+      value: ''
+    }
+    i++ //跳过转义符的“\”
+    node.value = str[i]
+    i++//跳过转义符的具体内容
+    node.end = i
+    node.raw = str.slice(node.start, node.end)
+    return node
+  }
+
+  function parsePattern() {//功能：解析一套完整的正则表达式  //其实这个函数的功能和parseBranches()的功能高度重合(甚至可以说是一样)，这个函数是为了让代码在含义上更具体、更完整、更工程化而已，因为parseBranches翻译过来是“解析几个分支”，而parsePattern翻译过来是“解析一套完整的东西”，明显后者显得更牛逼，然而二者功能基本一样，而且后者只是在前者的基础上套了个壳形成的速成品。
+    var node = {
+      type: 'RegularExpression',
+      start: i,
+      end: 0,
+      raw: '',
+      branches: parseBranches(),
+    }
+    node.end = i
+    node.raw = str.slice(node.start, node.end)
+
+    return node
+  }
+
+  function parseRegularExpression(input) {//功能：解析一个正则表达式  //其实解析正则表达式的核心在parseBranches()里已经完全实现了，这里的这个parseRegularExpression(input)的角色更像是提供一个入口、接收一个正则表达式并将重要的全局变量们初始化而已，真正干事事儿的还是parseBranches()
+    str = input
+    i = 0
+    groupIndex = 1
+    return parsePattern()
+  }
+
+
+
+  // 为正则语法树结点创建图形
+  // 针对不同类型的结点调用不同的函数为之画图
+  function createGraph(node) {
+    if (node.type == 'Character') {
+      return createCharacterGraph(node)
+    }
+    if (node.type == 'CharacterClass') {
+      return createCharacterClassGraph(node)
+    }
+    if (node.type == 'Branch') {
+      return createBranchGraph(node)
+    }
+    if (node.type == 'Branches') {
+      return createBranchesGraph(node)
+    }
+    if (node.type == 'CaptureGroup') {
+      return createCaptureGroupGraph(node)
+    }
+    if (node.type == 'Quantifier') {
+      return createQuantifierGraph(node)
+    }
+    if (node.type == 'Escape') {
+      return createEscapeGraph(node)
+    }
+  }
+
+
+  var svg = document.querySelector('svg')
+  var gp = 10
+
+  function elt(tagName, attrs = {}, ...children) {//功能：创建指定的svg相关元素，并为之添加指定属性，并往里塞指定节点 //tagName是标签名，attrs里是属性键值对，...children是要往标签里塞的结点
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tagName)//创建指定的svg相关元素  //关于这种写法的讲解请见2.25-NO3以及“JS笔记胡逼版.doc”
+
+    for (var key in attrs) {
+      var val = attrs[key]
+      el.setAttribute(key, val)//为之设置属性
+    }
+
+    for (var child of children) {//往里塞指定节点
+      if (typeof child == 'string') {//如果是文字
+        child = document.createTextNode(child)//就将文字创建成文本结点
+      }
+      el.appendChild(child)//将结点塞进去
+    }
+
+    svg.appendChild(el)//这步至关重要，如果不写这步，那就相当于光创建出了个结点、却没塞进dom里，那么它通过getBBox()方法也就读取不到具体数据了、只能读到一堆0。而如果写了这步，就相当于将之塞进dom里了，这样它通过getBBox()方法才能读取到具体数据
+    return el
+  }
+
+  function createCharacterGraph(node) {//功能：为字符结点画图
+    var text = elt('text', { //将node.value创建成svg里的text结点，并为之添加相关属性
+      'dominant-baseline': 'text-before-edge',//这是为了将文字的定位原点改为对齐文字左上角，这样文字才能位置正常。关于这一点的详细讲解，请参考“JS笔记1.21之后胡逼版.doc”
+      x: gp / 2,//因为由下方的代码“width: textBox.width + gp”知外围矩形的宽比字符框的宽要多gp个像素，所以字符框如果想居中，就得向右移gp/2个像素
+      y: gp / 2,//因为由下方的代码“height: textBox.height + gp”知外围矩形的高比字符框的高要多gp个像素，所以字符框如果想居中，就得向下移gp/2个像素
+    }, node.value)
+
+    var textBox = text.getBBox()//得到字符框的大小
+
+    var rect = elt('rect', {//这个要画的矩形区域表示铁路图里的字符外围的那个淡蓝色图形
+      fill: '#dae9e5',//颜色
+      width: textBox.width + gp,//表示这个矩形的宽比字符框的宽要大出gp个像素
+      height: textBox.height + gp,//表示这个矩形的高比字符框的高要大出gp个像素
+      rx: '3',//圆角
+    })
+    var g = elt('g', {}, rect, text)//创建svg里的g标签并把刚刚弄的rect标签和text标签塞进去，但注意要先写rect再写text，因为这样按照先后顺序塞入rect和text之后，text才能盖在rect上
+    var box = g.getBBox()//通过对g调用getBBox就可获得g的大小以及相对svg空间的坐标
+
+    return {
+      g: g, //这个g就是包裹刚刚所画的东西的实质标签
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+  function add(a, b) {
+    return a + b
+  }
+
+  function max(a, b) {
+    return Math.max(a, b)
+  }
+
+  function createCharacterClassGraph(node) {//功能：为字符组合结点画图
+    var graphs = node.elements.map(createGraph)//拿到组合里的所有单个字符的图
+
+    var height = graphs.map(it => it.height).reduce(add) + (graphs.length + 1) * gp//求出字符组合外围的那个图形的高  //高 = 所有graph的高之和 + (graph个数 + 1)*间隙 
+    var width = graphs.map(it => it.width).reduce(max) + 2 * gp//求出字符组合外围的那个图形的宽 //宽 = 宽度最大的graph的宽度 + 2*间隙
+
+    var fill = elt('rect', { //这里画的就是字符组合外围的那个图形
+      width: width,
+      height: height,
+      fill: '#cbcbba',//颜色
+      rx: '3', //圆角
+    })
+
+    var g = elt('g')
+
+    g.appendChild(fill)//这样一来，g就被撑到和fill一样大了，如果不写这步，g的大小就是graphs的大小，但写了这步之后，fill就又将g撑大了一圈儿
+
+    var y = gp
+
+    for (var graph of graphs) {//这部分用于把字符组合里的每个字符的图移到正确的位置上 //原理：移动每个字符外面的g标签，字符的图即可跟着一起移动。至于移多少，这是简单数学题，我懒得讲
+      graph.g.setAttribute('transform', `translate(${(width - graph.width) / 2},${y})`) //注意：translate后面的括号里的两个值表示横向和纵向分别朝哪移多少，而不是目的地的坐标 //横向移动距离：width-graph.width)/2，纵向移动距离：y  //注意：svg里的g标签必须通过改变transform属性才能实现移动。手动为g的x属性和y属性赋值的那种方法对g标签而言并不奏效，那种方法对g标签以外的标签可以奏效，另外，改变transform属性的这种方法对所有svg相关标签都能奏效。
+      y += graph.height + gp //y表示纵向移动距离
+      g.appendChild(graph.g)//刚才已经把fill放到g里了，现在再把graph.g也放到g里，而且由于先放的fill、后放的graph.g，所以graph.g刚好可以盖在fill上，完美
+    }
+
+    var box = g.getBBox()
+
+    return {
+      g: g,
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+  function createBranchGraph(node) {//功能：为分支结点画图
+    var graphs = node.elements.map(createGraph)//拿到分支里所有元素各自的图
+
+    //求包裹分支的外围宽高
+    var height = graphs.map(it => it.height).reduce(max) + 2 * gp
+    var width = graphs.map(it => it.width).reduce(add) + (graphs.length + 1) * gp
+
+    //包裹分支的元素
+    var fill = elt('rect', {
+      width: width,
+      height: height,
+      fill: 'yellow',
+      rx: '3',
+    })
+
+    var g = elt('g')
+    g.appendChild(fill)
+
+    //弄分支里的元素以及连接线
+    var x = gp
+    for (var graph of graphs) {
+      var line = elt('line', {//画连接线
+        x1: x,
+        y1: height / 2,
+        x2: x - gp,
+        y2: height / 2,
+        'stroke-width': 2,//线之粗细
+        stroke: 'black',//线之颜色
+      })
+      graph.g.setAttribute('transform', `translate(${x},${(height - graph.height) / 2})`)//通过控制包裹graph.g的移动进而让graph也跟着一起移动到正确的位置上
+      x += graph.width + gp
+      g.appendChild(line)
+      g.appendChild(graph.g)
+    }
+
+    //再在末尾补上最后一条线
+    var line = elt('line', {
+      x1: x,
+      y1: height / 2,
+      x2: x - gp,
+      y2: height / 2,
+      'stroke-width': 2,
+      stroke: 'black',
+    })
+
+    g.appendChild(line)
+
+    var box = g.getBBox()
+
+    return {
+      g: g,
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+  function createBranchesGraph(branches) {//功能：为多分支画图  //注意：由parseBranches()源码可知parseBranches()返回值是个数组而不是结点，也就是说不存在type为branches的结点，不信的话你自己去搜呗。所以我们这里的形参写的是branches而不是node
+    var graphs = branches.map(createGraph)//拿到多分支里的所有单分支的图
+
+    var height = graphs.map(it => it.height).reduce(add) + (graphs.length + 1) * gp//高
+    var width = graphs.map(it => it.width).reduce(max) + 4 * gp//宽  //这里加的是4*gp而不是2*gp，是为了给铁路的两处转折的弧线留空间，具体讲解请见2.25-NO6
+
+    var fill = elt('rect', { //这里画的就是外围的那个图形
+      width: width,
+      height: height,
+      fill: 'lightgreen',//颜色
+      rx: '3', //圆角
+    })
+
+    var g = elt('g')
+
+    g.appendChild(fill)
+
+    var y = gp
+
+    for (var graph of graphs) {//这部分用于把多分支里的每个单分支的图移到正确的位置上 //原理：移动每个单分支外面的g标签，单分支的图即可跟着一起移动。至于移多少，这是简单数学题，我懒得讲
+      var x = (width - graph.width) / 2
+      graph.g.setAttribute('transform', `translate(${x},${y})`) //横向移动距离：width-graph.width)/2，纵向移动距离：y
+
+      var railway = elt('path', {//这部分是用于通过贝塞尔曲线来画线来联通branches里的各个branch，详细讲解请见2.25-NO6以及https://developer.mozilla.org/zh-CN/docs/Web/SVG/Tutorial/Paths
+        d: `
+            M ${x} ${y + graph.height / 2} 
+            H ${gp * 2}
+            C ${gp} ${y + graph.height / 2} ${gp} ${height / 2} 0 ${height / 2}
+
+            M ${width - x} ${y + graph.height / 2}
+            H ${width - gp * 2}
+            C ${width - gp} ${y + graph.height / 2} ${width - gp} ${height / 2} ${width} ${height / 2}
+          `,//我们这里是通过找五个点来画贝塞尔曲线的，第一个点即M，这也是起点，即每个graph的边缘的高度一半处，第二个点即H，表示在第一个点的基础上横向移到H描述的位置，第三、四、五个点即C。关于这五个点的详细讲解，请见2.25-NO6  //第一套M、H、C用于画branches左半部分的联通线，第二套M、H、C用于画branches右半部分的联通线，右半部分与左半部分纵坐标相同、横坐标对称。
+        fill: 'none',
+        stroke: 'black',
+        'stroke-width': 2,
+      })
+
+      y += graph.height + gp //y表示纵向移动距离
+      g.appendChild(railway)
+      g.appendChild(graph.g)//刚才已经把fill放到g里了，现在再把graph.g也放到g里，而且由于先放的fill、后放的graph.g，所以graph.g刚好可以盖在fill上，完美
+    }
+
+    var box = g.getBBox()
+
+    return {
+      g: g,
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+  function createCaptureGroupGraph(node) {//功能：为捕获分组画图   //其实这个函数本质上就是在createBranchesGraph()的成果上进行套壳二次创作而已，因为捕获分组的括号里的内容本质上就是分支或分支组合啊。而这里的createCaptureGroupGraph()的功能也就是在createBranchesGraph()的成果上又套了一圈儿虚线而已
+    var branchesGraph = createBranchesGraph(node.branches)//获得括号里的分支组合的图
+
+    var fill = elt('rect', {//这部分画的就是外围的那个图形
+      width: branchesGraph.width,
+      height: branchesGraph.height + 4 * gp, //这里宽度和内容一样、而高度比内容高出4*gp就是为了给分组的描述文字制造空间
+      fill: 'lightblue',
+      'stroke-width': 2,//这行貌似没有啥子卵用
+      rx: 3,
+    })
+
+    var dottedBorder = elt('rect', {//做个和分值组合的图一样大的矩形并为之画虚线框
+      x: 0,//这行无用
+      y: 2 * gp,//由上方的fill的代码分析易知fill和dottedBorder的宽度一样、但高度比dottedBorder高出4*gp，现在让fill下移2*gp，就可以让fill的底和dottedBorder重合，而顶部空出2*gp的空间用来放分组的描述文字
+      width: branchesGraph.width,
+      height: branchesGraph.height,
+      'stroke-dasharray': '7 7',//画虚线 //实例文档可参考：https://jenkov.com/tutorials/svg/rect-element.html
+      fill: 'none',//矩形的填充色
+      stroke: 'grey',//线条颜色
+      'stroke-width': 2,//线条宽度
+      rx: 3
+    })
+    var g = elt('g')
+    g.appendChild(fill)
+    branchesGraph.g.setAttribute('transform', `translate(0, ${gp * 2})`)//让内容下移2*gp，因为虚线框已经下移2*gp了，而虚线框应该是紧裹内容的，所以内容当然也得跟上啊，所以这里也得让内容下移2*gp
+    g.appendChild(branchesGraph.g)//注意：这里千万别把“.g”忘了啊，因为branchesGraph是createBranchesGraph()函数返回的对象，branchesGraph.g才是结点
+    g.appendChild(dottedBorder)
+
+    var groupDescText = 'Group'//这部分是分组的描述文字
+    if (node.name) {//如果指定过分组名，那就用分组名
+      groupDescText += '#' + node.name
+    }
+    if (node.index) {//如果没有指定过分组名，那就用分组编号
+      groupDescText += '#' + node.index
+    }
+
+    var desc = elt('text', {//将刚才弄好的分组的描述文字弄成text标签并塞进g里 （由于我们没有给这个text标签额外指定过位置，所以易知它应该位于g的左上角）
+      'dominant-baseline': 'text-before-edge',//这是为了将文字的定位原点改为对齐文字左上角，这样文字才能位置正常。关于这一点的详细讲解，请参考“JS笔记1.21之后胡逼版.doc”
+      'font-size': '12px'
+    }, groupDescText)
+
+    g.appendChild(desc)
+
+    var box = g.getBBox()
+
+    return {
+      g: g,
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+  function createQuantifierGraph(node) {//功能：为量词符画图
+    var elementGraph = createGraph(node.element)//获得量词符里的元素的图
+
+    var width = elementGraph.width + 4 * gp //这里加4*gp而不是2*gp的原因与createBranchesGraph()里加4*gp的原因同理
+    var height = elementGraph.height + 4 * gp //这里加4*gp而不是2*gp的原因与createBranchesGraph()里加4*gp的原因同理
+
+    var fill = elt('rect', {//这里画的就是外围的那个图形
+      width: width,
+      height: height,
+      fill: 'pink',
+      rx: 3,
+    })
+
+    var g = elt('g')
+    g.appendChild(fill)
+
+    var line = elt('path', { //这部分用于画量词符的横向连接线
+      d: `
+      M 0 ${height / 2}
+      L ${gp * 2} ${height / 2}
+
+      M ${width} ${height / 2}
+      L ${width - gp * 2} ${height / 2}
+    `,
+      fill: 'none',
+      stroke: 'black',
+      'stroke-width': 2,
+    })
+    elementGraph.g.setAttribute('transform', `translate(${(width - elementGraph.width) / 2},${(height - elementGraph.height) / 2})`) //把量词符里的元素的图移到正确的位置上
+    g.appendChild(elementGraph.g)
+    g.appendChild(line)
+
+    if (node.min == 0) {
+      var skipLine = elt('path', { //这部分用于画当重复次数为0时的路线图，详细讲解请见2.25-NO6以及https://developer.mozilla.org/zh-CN/docs/Web/SVG/Tutorial/Paths
+        d: `
+      M 0 ${height / 2}
+      a ${gp} ${gp} 0 0 0 ${gp} ${-gp}
+      V ${gp * 2}
+      a ${gp} ${gp} 0 0 1 ${gp} ${-gp}
+      H ${width - gp * 2}
+      a ${gp} ${gp} 0 0 1 ${gp} ${gp}
+      V ${height / 2 - gp}
+      a ${gp} ${gp} 0 0 0 ${gp} ${gp}
+    `,//M表示起点，a表示弧线，V表示直线
+        fill: 'none',
+        stroke: 'black',
+        'stroke-width': 2,
+      })
+      g.appendChild(skipLine)
+    }
+
+    if (node.max > 1) {
+      var repeatLine = elt('path', {//这部分用于画当重复次数大于1时的路线图(因为分析易知当等于1的时候就不用画repeat路线了)，详细讲解请见2.25-NO6以及https://developer.mozilla.org/zh-CN/docs/Web/SVG/Tutorial/Paths
+        d: `
+      M ${gp * 2} ${height / 2}
+      a ${gp} ${gp} 0 0 0 ${-gp} ${gp}
+      V ${height - gp * 2}
+      a ${gp} ${gp} 0 0 0 ${gp} ${gp}
+      H ${width - gp * 2}
+      a ${gp} ${gp} 0 0 0 ${gp} ${-gp}
+      V ${height / 2 + gp}
+      a ${gp} ${gp} 0 0 0 ${-gp} ${-gp}
+    `,
+        fill: 'none',
+        stroke: 'black',
+        'stroke-width': 2,
+      })
+      g.appendChild(repeatLine)
+    }
+
+    var box = g.getBBox()
+
+    return {
+      g: g,
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+  function createRegularExpressionGraph(node) {//功能：为整套正则表达式画图  //其实这个函数和createBranchesGraph()没太大差别，这个函数做的事说白了就是在createBranchesGraph()所画图的基础上又在两边画了俩圆点儿而已。
+    var branchesGraph = createBranchesGraph(node.branches)//获得正则表达式里所有分支组成的总图
+
+    var width = branchesGraph.width + 2 * gp//这里在branchesGraph的宽度的基础上又加了2*gp是为了给一会儿要加的那俩圆点儿创造空间
+    var height = branchesGraph.height
+
+    var fill = elt('rect', {
+      width: width,
+      height: height,
+      fill: 'none',
+    })
+
+    var g = elt('g')
+
+    g.appendChild(fill)
+
+    branchesGraph.g.setAttribute('transform', `translate(${gp},0)`)//把内容往右移gp个像素，分析易知这样fill里的内容的左右就各有gp个像素的空间了，这样一来正好左右可以各塞一个半径为gp/2的圆点儿
+    g.appendChild(branchesGraph.g)
+
+    var leftCircle = elt('circle', {//这部分用于画左边的圆点儿
+      cx: gp / 2,//圆心横坐标
+      cy: height / 2,//圆心纵坐标
+      r: gp / 2,//半径
+      fill: '#6b6659',
+      stroke: 'black',
+      'stroke-width': 2,
+    })
+    g.appendChild(leftCircle)
+
+    var rightCircle = elt('circle', {//这部分用于画左边的圆点儿
+      cx: width - gp / 2,
+      cy: height / 2,
+      r: gp / 2,
+      fill: '#6b6659',
+      stroke: 'black',
+      'stroke-width': 2,
+    })
+    g.appendChild(rightCircle)
+
+    var box = g.getBBox()
+
+    return {
+      g: g,
+      width: box.width,
+      height: box.height,
+    }
+  }
+
+
+  //接下来是正则表达式的文字描述模块  //其实思想还是“递归下降”的那一套  //注意：这里只是演示功能，所以只实现了对正则表达式里的character、branch、branches的文字描述功能，正则表达式里的其他部分的文字描述功能并未实现，感兴趣的话可以自行实现之。
+  function explainRegularExpression(node) {
+    if (node.type == 'Character') {
+      return explainCharacter(node)
+    }
+    if (node.type == 'Branch') {
+      return explainBranch(node)
+    }
+    if (node.type == 'RegularExpression') {
+      return explainRegExp(node)
+    }
+  }
+
+  function explainCharacter(node) {//功能：用文字描述正则表达式里的单个字符
+    return `<div>'${node.value}', 此部分匹配单个字符，内容为${node.value}</div>`
+  }
+
+  function explainBranch(node) {//功能：用文字描述正则表达式里的单个分支
+    var explains = node.elements.map(explainRegularExpression)//取得分支里各元素的文字描述
+
+    return `<div>
+      <h3>${node.raw}, 此分支按序匹配以下内容</h3>
+      ${explains.join('')}
+      </div>`
+  }
+
+  function explainRegExp(node) {//功能：用文字描述正则表达式里的分支组合
+    var explains = node.branches.map(explainRegularExpression)//取得分支组合里各分支的文字描述
+
+    return `<div>
+      <h3>${node.raw}, 此部分是多选，可匹配以下分支之一</h3>
+      <section>
+        ${explains.join('')}
+      </section>
+    </div>`
+  }
+
+  //接下来是对正则表达式进行高亮模块  //注意：这里老谢并未实现全部的情况，感兴趣的话自行实现其余情况吧  //原理：拼出一套和原正则表达式的字面内容一模一样的正则表达式，但是不同之处在于这个拼出的正则表达式里的各个元素已经分别用span标签所包裹，这样针对不同元素的span标签进行样式控制就能实现对正则表达式中的不同元素进行不同颜色的高亮了。
+  function highlightRegularExpression(node) {
+    if (node.type == 'Character') {//字符
+      return `<span class="character" title="Text,matches:${node.value}">${node.value}</span>`
+    }
+    if (node.type == 'Escape') {//转义符
+      return `<span class="escape" title="Escape">${node.raw}</span>`//由parseEscape()的代码可知本行代码里的node.raw内容应该是以\\打头的字符串，可是将本行代码返回的这套字符串塞进页面里之后，这块内容在页面里呈现出来的效果是以\打头的字符串而不是以\\打头的字符串，关于这一点我在本项目注释里的“超级讲解”中已解释过，故不赘述，请自行前往了解吧。
+    }
+    if (node.type == 'Branch') {//分支
+      return `<span>${node.elements.map(highlightRegularExpression).join('')}</span>`
+    }
+    if (node.type == 'CharacterClass') {//字符组合
+      return `<span class="character-class">[${node.elements.map(highlightRegularExpression).join('')}]</span>`
+    }
+    if (node.type == 'RegularExpression') {//完整的正则表达式
+      return `<span>${node.branches.map(highlightRegularExpression).join('<span class="branches-operator">|</span>')}</span>`
+    }
+    if (node.type == 'CaptureGroup') {//捕获分组
+      return `<span class="capture-group">(${node.branches.map(highlightRegularExpression).join('<span class="branches-operator">|</span>')})</span>`
+    }
+  }
+
+  document.write(explainRegExp(parseRegularExpression('abc|def')))
+  // var body = document.querySelector('body')
+  // var fuck = document.createElement('div')
+  // fuck.innerHTML = explainRegExp(parseRegularExpression('abc|def'))
+  // body.appendChild(fuck)
+  document.write(highlightRegularExpression(parseRegularExpression('ab\\dc|d[abc]e|f(def)')))
+</script>
+
+<style>
+  div {
+    /*这个主要负责调整文字描述模块的缩进样式*/
+    padding-left: 20px;
+  }
+
+  .escape {
+    background-color: magenta;
+  }
+
+  .character {
+    background-color: violet;
+  }
+
+  .character-class {
+    background-color: pink;
+  }
+
+  .capture-group {
+    background-color: lightgreen;
+  }
+
+  .branches-operator {
+    background-color: gold;
+  }
+</style>
