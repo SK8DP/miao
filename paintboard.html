@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      height: 200px;
+      background-color: beige;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background-color: violet;
+      position: absolute;
+    }
+
+    html {
+      user-select: none;
+      /*禁止选中页面里的任何东西。 这相当于是禁止了鼠标的默认行为*/
+    }
+
+    .svg-wrapper {
+      border: 5px solid;
+      display: inline-block;
+      /*写了这句，div和svg的长度才能严丝合缝*/
+    }
+
+    .svg-wrapper svg {
+      display: block;
+      /*div里的svg默认是行内元素，写了这句，div和svg的宽度才能严丝合缝*/
+    }
+
+    .colors button {
+      width: 20px;
+      height: 20px;
+      border: 2px solid grey;
+      border-radius: 5px;
+    }
+
+    .colors button.selected {
+      outline: 2px solid;
+    }
+
+    .selected-colors.selected {
+      outline: 2px solid #808080;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="colors">
+    <button class="color" style="background-color:black"></button>
+    <button class="color" style="background-color:transparent"></button>
+    <button class="color" style="background-color:white"></button>
+    <button class="color" style="background-color:aquamarine"></button>
+    <button class="color" style="background-color:brown"></button>
+    <button class="color selected" style="background-color:yellowgreen"></button>
+    <button class="color" style="background-color:violet"></button>
+    <button class="color" style="background-color:tomato"></button>
+    <input type="color" id="colorSelect" value="#ff0000">
+    <span class="selected-colors selected" id="color1" style="background-color: yellowgreen;">颜色1</span>
+    <!--边框色 -->
+    <span class="selected-colors" id="color2" style="background-color: transparent;">颜色2</span>
+    <!--填充色 -->
+  </div>
+  <input type="range" id="strokeWidthSelect" value="3" min="1" max="20" step="1">
+
+  <hr>
+
+  <button onclick="tool='line'">线</button>
+  <button onclick="tool='rect'">框</button>
+  <button onclick="tool='circle'">〇</button>
+  <div class="svg-wrapper">
+    <!-- 这里给svg包一层div是因为如果你直接给svg的加边框，那么由于鼠标和svg图案的坐标计算的起始点不同，会导致最终光标和笔触直接存在边框宽度的差距，而如果把边框宽度加给div，那么当然就不会存在这个问题了 -->
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="800px" height="800px"></svg>
+  </div>
+  <button id="save-file">保存</button>
+  <script>
+    var svg = document.querySelector('svg')
+    var colorSelect = document.querySelector('#colorSelect')
+    var saveFile = document.querySelector('#save-file')
+    var strokeWidthSelect = document.querySelector('#strokeWidthSelect')
+
+    var color1Show = document.querySelector('#color1')
+    var color2Show = document.querySelector('#color2')
+    var colorsDiv = document.querySelector('.colors')
+
+    //以下为重要的全局变量们
+    var config = {//color1和color2的相关参数 //这里把这几个参数写到一个对象里，之后函数调用及赋值的时候会很方便
+      color1: 'yellowgreen', //color1是边框色
+      color2: 'transparent', //color2是填充色  //当你不想弄填充效果时，只需把color2的颜色设置成透明色即可
+      tool: 'line',
+      setColor: 'color1', // 意思是点击颜色时设置的是color1还是color2
+    }
+    var lastX, lastY
+    var node
+    var tool = 'line' //代表你当前要画啥子图案
+    var startPos //记录鼠标按下时的位置
+
+    colorSelect.addEventListener('change', function (e) {//当colorSelect选了颜色就会触发change事件  //功能：如果是在colorSelect选的颜色，那么就得把选中的颜色赋给当前选中的color1或color2，同时既然是在colorSelect选的颜色，那么button那些按钮就不能生效了，所以此时得去掉button那些按钮的选中框样式。
+      var colorButtons = document.querySelectorAll('.colors button.color')//获取所有的颜色button
+      for (var btn of colorButtons) {
+        btn.classList.remove('selected')//去掉其选中框样式
+      }
+      setColor(config.setColor, e.target.value)//把选中的颜色赋给当前选中的color1或color2
+    })
+    color1Show.addEventListener('click', function () {//功能：如果当前点的是color1，那么就得给color1加颜色加样式，同时去掉color2的样式
+      config.setColor = 'color1'
+      color1Show.classList.add('selected')
+      color2Show.classList.remove('selected')
+    })
+    color2Show.addEventListener('click', function () {//功能：如果当前点的是color2，那么就得给color2加颜色加样式，同时去掉color1的样式
+      config.setColor = 'color2'
+      color2Show.classList.add('selected')
+      color1Show.classList.remove('selected')
+    })
+
+    colorsDiv.addEventListener('click', function (e) {//功能：如果是在颜色button里选的颜色，那么就给当前所选颜色的button添加选中框样式，同时将选中的颜色赋给当前选中的color1或color2  //这里是把事件绑给了colorsDiv，这样点击button时通过冒泡就可以触发事件了
+      if (e.target.matches('button.color')) {
+        var colorButtons = document.querySelectorAll('.colors button.color')
+        for (var btn of colorButtons) {
+          btn.classList.remove('selected')//先去掉所有颜色button的选中框样式
+        }
+        e.target.classList.add('selected')//给当前颜色添加选中框样式（这里用的是黑马讲的“排他思想”，即：干掉所有人，留下我自己）
+        setColor(config.setColor, e.target.style.backgroundColor)//把选中的颜色赋给当前选中的color1或color2
+      }
+    })
+
+    function setColor(colorName, value) {//功能：把config对象里的'colorName'属性的属性值设置成value，同时把id为'colorName'的元素(即:color1或color2)的背景色设置成value色
+      config[colorName] = value
+      document.querySelector('#' + colorName).style.backgroundColor = value
+    }
+
+    svg.addEventListener('mousedown', function (e) {
+      if (e.which == 1) {//如果鼠左点击了才开始画，否则啥子都不做
+        var pos = mouse(svg)//记住鼠标开始作画的起始点相对svg的坐标
+        startPos = pos
+        saved = false//说明此时还没保存绘画内容
+        if (tool == 'line') {
+          node = svgElt('path', {//鼠标只要点击了就开始画  //关于svg里的path的用法请去mdn自学：https://developer.mozilla.org/zh-CN/docs/Web/SVG/Tutorial/Paths
+            d: `M ${pos.x} ${pos.y} L ${pos.x} ${pos.y}`,//起点 //这里让L的坐标和M的坐标一模一样是为了即使只是在屏幕上点了一下鼠标但没有移动，也能画出一个点儿，否则这里如果不写“L ${pos.x} ${pos.y}”的话，当你只是在屏幕上点了一下鼠标但没有移动，就画不出东西了，如果不懂请去研究onMove()的代码并好好复习svg里的path的用法，操他妈的。
+            stroke: config.color1,
+            fill: config.color2,//当你不想弄填充效果时，只需把color2的颜色设置成透明色即可
+            'stroke-width': strokeWidthSelect.value,
+            'stroke-linecap': "round",//这行代码的功能是令line的两端是半圆而不是直角，这样在拐弯处就不会出现裂痕。原理请参考3.2-NO4以及https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+          })
+          svg.appendChild(node)//这步至关重要，如果不写这步，那就相当于光创建出了个结点、却没塞进dom里
+        }
+        if (tool == 'rect') {
+          node = svgElt('rect', {//鼠标只要点击了就开始画  //关于svg里的rect的用法请去mdn自学：https://developer.mozilla.org/zh-CN/docs/Web/SVG/Element/rect
+            x: pos.x,
+            y: pos.y,
+            width: 0,
+            height: 0,
+            stroke: config.color1,
+            fill: config.color2,//当你不想弄填充效果时，只需把color2的颜色设置成透明色即可
+            'stroke-width': strokeWidthSelect.value,
+            'stroke-linecap': "round",//这行代码的功能是令line的两端是半圆而不是直角，这样在拐弯处就不会出现裂痕。原理请参考3.2-NO4以及https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+          })
+          svg.appendChild(node)//这步至关重要，如果不写这步，那就相当于光创建出了个结点、却没塞进dom里
+        }
+        if (tool == 'circle') {
+          node = svgElt('ellipse', {//鼠标只要点击了就开始画  //关于svg里的椭圆的用法请去mdn自学：https://developer.mozilla.org/zh-CN/docs/Web/SVG/Element/ellipse
+            cx: pos.x,
+            cy: pos.y,
+            rx: 0,
+            ry: 0,
+            stroke: config.color1,
+            fill: config.color2,//当你不想弄填充效果时，只需把color2的颜色设置成透明色即可
+            'stroke-width': strokeWidthSelect.value,
+            'stroke-linecap': "round",//这行代码的功能是令line的两端是半圆而不是直角，这样在拐弯处就不会出现裂痕。原理请参考3.2-NO4以及https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+          })
+          svg.appendChild(node)//这步至关重要，如果不写这步，那就相当于光创建出了个结点、却没塞进dom里
+        }
+        window.addEventListener('mousemove', onMove)//开始作画  //这里必须把事件绑给window、而不能绑给svg，否则会有问题，原因请见3.2-NO5
+      }
+    })
+
+    // svg.addEventListener('mouseup', function(e){//当鼠标左键抬起，让路径闭合，这样即使只是在屏幕上点了一下鼠标但没有移动，也能画出一个点儿
+    //   if (e.which == 1) {
+    //     var d = node.getAttribute('d')
+    //     d += 'Z'//闭合路径
+    //     node.setAttribute('d',d)
+    //   }
+    // })
+
+
+    function onMove(e) {//功能：画
+      if (!buttonPressed(e)) {//如果发现鼠标键已经松开了，那就解除事件，啥也不画了
+        window.removeEventListener('mousemove', onMove)
+        return
+      }
+      var pos = mouse(svg)//求出新的鼠标位置相对svg的坐标
+      if (tool == 'line') {
+        var d = node.getAttribute('d')
+        d += `L ${pos.x} ${pos.y}`//用直线连接相邻的两个点 //作画的原理就是在每相邻的两个点直接画直线，当两个点离得很近时，无论连不连直线，视觉上都是连贯的；当你画的极快时，相邻两个点直接离得也远，但是我们这里用直线已经将相邻的两点连接了，所以此时也不会以为画的出现而在线条中间出现断点
+        node.setAttribute('d', d)
+      }
+
+      if (tool == 'rect') {
+        var width = pos.x - startPos.x
+        var height = pos.y - startPos.y
+        node.setAttribute('width', width)
+        node.setAttribute('height', height)
+      }
+
+      if (tool == 'circle') {
+        var cx = (pos.x + startPos.x) / 2
+        var cy = (pos.y + startPos.y) / 2
+        var rx = pos.x - startPos.x
+        var ry = pos.y - startPos.y
+        node.setAttribute('cx', cx)
+        node.setAttribute('cy', cy)
+        node.setAttribute('rx', rx)
+        node.setAttribute('ry', ry)
+      }
+    }
+
+    function buttonPressed(event) {//此函数的功能是mousemove事件的which属性和buttons属性的兼容性处理  //mousemove事件的which属性和buttons属性都代表了你按的是哪个键，有的浏览器支持which、而有的浏览器支持buttons，所以使用此属性时得进行兼容性处理
+      if (event.buttons == null) { //说明当前浏览器不支持buttons属性
+        return event.which !== 0 //判断当前是否按了鼠标键并返回
+      } else {//说明当前浏览器支持buttons属性
+        return event.buttons !== 0//判断当前是否按了鼠标键并返回
+      }
+    }
+
+    window.addEventListener('keydown', function (e) {//功能：撤销上一步的操作
+      if (e.ctrlKey && e.key == 'z') {//如果同时按下了Ctrl+z
+        svg.removeChild(svg.lastChild)//就删掉svg里的最后一个结点（由之前的代码知每执行一次操作就会往svg里塞一套path，所以删掉svg里的最后一个结点就相当于是实现了撤销上一步的操作了）
+      }
+    })
+
+
+    //未保存退出时提醒模块
+    var saved = true
+    window.onbeforeunload = function (e) {
+      if (!saved) {
+        //e.returnValue = '作品未保存，确定退出吗？'  //这种写法也对
+        return '作品未保存，确定退出吗？'
+      }
+    }
+
+    saveFile.addEventListener('click', function (e) {//这段的功能是下载，都是套路，详细讲解请见3.4-NO3已经3.7-NO1
+      var blob = new Blob(['<?xml version="1.1"?>', svg.outerHTML], { type: 'image/svg+xml' })
+      var link = URL.createObjectURL(blob)
+      var anchor = document.createElement('a')
+      anchor.href = link
+      anchor.download = '您的大作.svg'
+      anchor.click()
+      saved = true
+    })
+
+    function mouse(node) {//求鼠标相对node元素的坐标
+      var nodePos = node.getBoundingClientRect()
+      return {
+        x: window.event.clientX - nodePos.x,
+        y: window.event.clientY - nodePos.y,
+      }
+    }
+
+    function svgElt(tagName, attrs = {}, ...children) {//功能：创建指定的svg相关元素，并为之添加指定属性，并往里塞指定节点 //tagName是标签名，attrs里是属性键值对，...children是要往标签里塞的结点
+      var node = document.createElementNS("http://www.w3.org/2000/svg", tagName)//创建指定的svg相关元素  //关于这种写法的讲解请见2.25-NO3以及“JS笔记胡逼版.doc”
+
+      for (var key in attrs) {
+        var val = attrs[key]
+        node.setAttribute(key, val)//为之设置属性
+      }
+
+      for (var child of children) {//往里塞指定节点
+        if (typeof child == 'string') {//如果是文字
+          child = document.createTextNode(child)//就将文字创建成文本结点
+        }
+        node.appendChild(child)//将结点塞进去
+      }
+      return node
+    }
+
+  </script>
+</body>
+
+</html>
